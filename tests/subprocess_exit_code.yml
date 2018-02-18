@@ -1,0 +1,13 @@
+---
+name: subprocess_exit_code
+states:
+ - name: echo_success
+   action:
+    type: shell.Subprocess
+    command:
+      - echo
+      - "hello world!!"
+   transition_conditions:
+    - type: assertions.IntEqual
+      using_property: returncode
+      to_equal: 0
