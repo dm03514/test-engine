@@ -7,6 +7,7 @@ import (
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/engine"
 	"github.com/dm03514/test-engine/fulfillment"
+	"github.com/dm03514/test-engine/transcons"
 	"time"
 )
 
@@ -34,6 +35,14 @@ func main() {
 				Action: actions.Subprocess{
 					"echo",
 					[]string{"hello world!"},
+				},
+				Conditions: transcons.Conditions{
+					[]transcons.TransCon{
+						transcons.IntEqual{
+							UsingProperty: "returncode",
+							ToEqual:       0,
+						},
+					},
 				},
 			},
 		},

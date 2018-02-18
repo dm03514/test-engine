@@ -2,26 +2,33 @@ package fulfillment
 
 import (
 	"github.com/dm03514/test-engine/actions"
+	"github.com/dm03514/test-engine/results"
+	"github.com/dm03514/test-engine/transcons"
 	log "github.com/sirupsen/logrus"
 )
 
 type NoopFulillment struct {
 	actions.Action
+
+	transcons.Conditions
 }
 
-func (n NoopFulillment) Execute() <-chan actions.Result {
+func (n NoopFulillment) Execute() <-chan results.Result {
 	log.Infof("NoopFulfillment()")
-	r := make(chan actions.Result)
+	c := make(chan results.Result)
 	// execute the action in another go routine, run the conditions
 	// against the result
 	go func() {
-		close(r)
-		/*
-			r, err := n.Action.Execute()
-			if err != nil {
-				r <- err
+		r, err := n.Action.Execute()
+		if err != nil {
+			c <- results.ErrorResult{
+				From: r,
+				Err:  err,
 			}
+		}
+		close(c)
 
+		/*
 			err = n.Conditions.Evaluate(r)
 			if err != nil {
 				return err
@@ -31,5 +38,5 @@ func (n NoopFulillment) Execute() <-chan actions.Result {
 		*/
 	}()
 
-	return r
+	return c
 }

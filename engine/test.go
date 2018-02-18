@@ -3,13 +3,13 @@ package engine
 import (
 	"context"
 	"fmt"
-	"github.com/dm03514/test-engine/actions"
+	"github.com/dm03514/test-engine/results"
 	log "github.com/sirupsen/logrus"
 	"time"
 )
 
 type State interface {
-	Execute() <-chan actions.Result
+	Execute() <-chan results.Result
 }
 
 type Test struct {
@@ -22,7 +22,7 @@ type Engine struct {
 	currentState int
 }
 
-func (e *Engine) ExecuteState() <-chan actions.Result {
+func (e *Engine) ExecuteState() <-chan results.Result {
 	s := e.States[e.currentState]
 	log.Infof("ExecuteState() %+v", s)
 	c := s.Execute()

@@ -9,5 +9,5 @@ states:
       - "hello world!!"
    transition_conditions:
     - type: assertions.IntEqual
-      from: returncode
+      using_property: returncode
       to_equal: 0

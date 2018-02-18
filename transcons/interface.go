@@ -1,7 +1,9 @@
 package transcons
 
-import "github.com/dm03514/test-engine/actions"
+import (
+	"github.com/dm03514/test-engine/results"
+)
 
 type TransCon interface {
-	Evaluate(result actions.Result) actions.Result
+	Evaluate(result results.Result) results.Result
 }
