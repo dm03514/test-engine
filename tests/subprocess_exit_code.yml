@@ -8,6 +8,6 @@ states:
       - echo
       - "hello world!!"
    transition_conditions:
-    - type: assertions.Equal
+    - type: assertions.IntEqual
       from: returncode
       to_equal: 0

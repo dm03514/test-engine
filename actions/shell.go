@@ -7,6 +7,11 @@ import (
 type SubprocessResult struct {
 	output     []byte
 	returncode int
+	err        error
+}
+
+func (s SubprocessResult) Error() error {
+	return s.err
 }
 
 type Subprocess struct {

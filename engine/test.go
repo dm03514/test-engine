@@ -3,11 +3,13 @@ package engine
 import (
 	"context"
 	"fmt"
+	"github.com/dm03514/test-engine/actions"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
 type State interface {
-	Execute() <-chan error
+	Execute() <-chan actions.Result
 }
 
 type Test struct {
@@ -20,8 +22,9 @@ type Engine struct {
 	currentState int
 }
 
-func (e *Engine) ExecuteState() <-chan error {
+func (e *Engine) ExecuteState() <-chan actions.Result {
 	s := e.States[e.currentState]
+	log.Infof("ExecuteState() %+v", s)
 	c := s.Execute()
 	e.currentState++
 	return c
@@ -32,6 +35,7 @@ func (e *Engine) IsLastState() bool {
 }
 
 func (e Engine) Run(ctx context.Context) error {
+	log.Infof("Run()")
 loop:
 	for {
 		s := e.ExecuteState()
@@ -41,14 +45,18 @@ loop:
 			return fmt.Errorf("Context Done().")
 		case <-time.After(e.Timeout):
 			return fmt.Errorf("Timeout")
-		case err := <-s:
-			if err != nil {
-				return err
+		case r, more := <-s:
+			log.Infof("Read From state %+v. (more = %+v)", r, more)
+			if !more && e.IsLastState() {
+				break loop
 			}
 
-			// check if this is the last state
-			if e.IsLastState() {
-				break loop
+			if !more {
+				break
+			}
+
+			if r.Error() != nil {
+				return r.Error()
 			}
 		}
 	}
