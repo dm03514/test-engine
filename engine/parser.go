@@ -6,6 +6,7 @@ import (
 	"github.com/dm03514/test-engine/fulfillment"
 	"github.com/dm03514/test-engine/transcons"
 	"github.com/go-yaml/yaml"
+	"github.com/mitchellh/mapstructure"
 	"time"
 )
 
@@ -13,7 +14,7 @@ type intermediaryState struct {
 	Name                 string
 	Fulfillment          map[string]interface{}
 	Action               map[string]interface{}
-	TransitionConditions map[string]interface{}
+	TransitionConditions []map[string]interface{} `yaml:"transition_conditions"`
 }
 
 func (is intermediaryState) ParsedAction() (actions.Action, error) {
@@ -23,7 +24,9 @@ func (is intermediaryState) ParsedAction() (actions.Action, error) {
 
 	switch actionType {
 	case "shell.Subprocess":
-		a, err = actions.NewSubprocess(is.Action)
+		var subprocess actions.Subprocess
+		err = mapstructure.Decode(is.Action, &subprocess)
+		a = subprocess
 	default:
 		err = fmt.Errorf("Unable to parse action type %s", actionType)
 	}
@@ -32,7 +35,31 @@ func (is intermediaryState) ParsedAction() (actions.Action, error) {
 }
 
 func (is intermediaryState) ParsedTransCons() (transcons.Conditions, error) {
-	return transcons.Conditions{}, nil
+	var err error
+	var parsedCondition transcons.TransCon
+	conditions := []transcons.TransCon{}
+
+	for _, tc := range is.TransitionConditions {
+		tcType := tc["type"].(string)
+		switch tcType {
+		case "assertions.IntEqual":
+			var intEqual transcons.IntEqual
+			err = mapstructure.Decode(tc, &intEqual)
+			parsedCondition = intEqual
+		default:
+			err = fmt.Errorf("Unable to parse condition %s", tcType)
+		}
+
+		if err != nil {
+			return transcons.Conditions{}, err
+		}
+
+		conditions = append(conditions, parsedCondition)
+	}
+
+	return transcons.Conditions{
+		Tcs: conditions,
+	}, nil
 }
 
 func (is intermediaryState) State() (State, error) {

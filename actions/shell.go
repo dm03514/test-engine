@@ -26,7 +26,7 @@ func (s SubprocessResult) ValueOfProperty(property string) (results.Value, error
 }
 
 type Subprocess struct {
-	CommandName string
+	CommandName string `mapstructure:"command_name"`
 	Args        []string
 }
 
@@ -41,18 +41,5 @@ func (s Subprocess) Execute() (results.Result, error) {
 	return SubprocessResult{
 		output:     out,
 		returncode: 0,
-	}, nil
-}
-
-func NewSubprocess(a map[string]interface{}) (Action, error) {
-	args := []string{}
-
-	for _, arg := range a["args"].([]interface{}) {
-		args = append(args, arg.(string))
-	}
-
-	return Subprocess{
-		CommandName: a["command_name"].(string),
-		Args:        args,
 	}, nil
 }

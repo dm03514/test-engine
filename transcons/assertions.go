@@ -6,8 +6,8 @@ import (
 )
 
 type IntEqual struct {
-	UsingProperty string
-	ToEqual       int
+	UsingProperty string `mapstructure:"using_property"`
+	ToEqual       int    `mapstructure:"to_equal"`
 }
 
 func (ie IntEqual) Evaluate(r results.Result) results.Result {

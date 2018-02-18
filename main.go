@@ -21,7 +21,6 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("%+v\n", engine)
-	return
 
 	err = engine.Run(context.Background())
 	if err != nil {
@@ -41,5 +40,5 @@ func main() {
 	*/
 
 	// Test State Machine
-	fmt.Println(*fp)
+	fmt.Println("SUCCESS")
 }
