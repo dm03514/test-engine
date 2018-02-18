@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"github.com/dm03514/test-engine/engine"
 	"io/ioutil"
 )
 
@@ -14,6 +16,18 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("%s", content)
+	engine, err := engine.New(content)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v\n", engine)
+	return
+
+	err = engine.Run(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
 	/*
 		result, err = engine.New(
 			parser.NewYAML(

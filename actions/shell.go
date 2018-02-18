@@ -43,3 +43,16 @@ func (s Subprocess) Execute() (results.Result, error) {
 		returncode: 0,
 	}, nil
 }
+
+func NewSubprocess(a map[string]interface{}) (Action, error) {
+	args := []string{}
+
+	for _, arg := range a["args"].([]interface{}) {
+		args = append(args, arg.(string))
+	}
+
+	return Subprocess{
+		CommandName: a["command_name"].(string),
+		Args:        args,
+	}, nil
+}
