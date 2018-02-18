@@ -25,17 +25,12 @@ func (n NoopFulillment) Execute() <-chan results.Result {
 				From: r,
 				Err:  err,
 			}
+			close(c)
 		}
+
+		r = n.Conditions.Evaluate(r)
+		c <- r
 		close(c)
-
-		/*
-			err = n.Conditions.Evaluate(r)
-			if err != nil {
-				return err
-			}
-
-			close
-		*/
 	}()
 
 	return c

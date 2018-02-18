@@ -31,32 +31,38 @@ func (e *Engine) ExecuteState() <-chan results.Result {
 }
 
 func (e *Engine) IsLastState() bool {
+	log.Infof("IsLastState(), currState %d : len(states): %d", e.currentState, len(e.States))
 	return e.currentState == len(e.States)
 }
 
 func (e Engine) Run(ctx context.Context) error {
 	log.Infof("Run()")
-loop:
+
+engineloop:
 	for {
 		s := e.ExecuteState()
 
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("Context Done().")
-		case <-time.After(e.Timeout):
-			return fmt.Errorf("Timeout")
-		case r, more := <-s:
-			log.Infof("Read From state %+v. (more = %+v)", r, more)
-			if !more && e.IsLastState() {
-				break loop
-			}
+	stateexecutionloop:
+		for {
+			select {
+			case <-ctx.Done():
+				return fmt.Errorf("Context Done().")
+			case <-time.After(e.Timeout):
+				return fmt.Errorf("Timeout")
+			case r, more := <-s:
+				log.Infof("Read From state %+v. (more = %+v)", r, more)
 
-			if !more {
-				break
-			}
+				if !more && e.IsLastState() {
+					break engineloop
+				}
 
-			if r.Error() != nil {
-				return r.Error()
+				if !more {
+					break stateexecutionloop
+				}
+
+				if r.Error() != nil {
+					return r.Error()
+				}
 			}
 		}
 	}
