@@ -13,6 +13,7 @@ type State interface {
 }
 
 type Test struct {
+	Name    string
 	States  []State
 	Timeout time.Duration
 }
