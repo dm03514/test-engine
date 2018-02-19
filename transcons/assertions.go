@@ -3,6 +3,7 @@ package transcons
 import (
 	"fmt"
 	"github.com/dm03514/test-engine/results"
+	"github.com/mitchellh/mapstructure"
 )
 
 type IntEqual struct {
@@ -25,4 +26,10 @@ func (ie IntEqual) Evaluate(r results.Result) results.Result {
 		}
 	}
 	return r
+}
+
+func NewIntEqualFromMap(m map[string]interface{}) (TransCon, error) {
+	var ie IntEqual
+	err := mapstructure.Decode(m, &ie)
+	return ie, err
 }

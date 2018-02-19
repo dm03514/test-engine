@@ -4,7 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/engine"
+	"github.com/dm03514/test-engine/transcons"
 	"io/ioutil"
 )
 
@@ -16,7 +18,15 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("%s", content)
-	engine, err := engine.New(content)
+	ar, err := actions.NewActionRegistry()
+	if err != nil {
+		panic(err)
+	}
+	tcr, err := transcons.NewTransConsRegistry()
+	if err != nil {
+		panic(err)
+	}
+	engine, err := engine.New(content, ar, tcr)
 	if err != nil {
 		panic(err)
 	}

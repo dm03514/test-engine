@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"github.com/dm03514/test-engine/results"
+	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"os/exec"
 )
@@ -42,4 +43,10 @@ func (s Subprocess) Execute() (results.Result, error) {
 		output:     out,
 		returncode: 0,
 	}, nil
+}
+
+func NewSubprocessFromMap(m map[string]interface{}) (Action, error) {
+	var sp Subprocess
+	err := mapstructure.Decode(m, &sp)
+	return sp, err
 }
