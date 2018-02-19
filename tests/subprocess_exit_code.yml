@@ -4,8 +4,8 @@ states:
  - name: echo_success
    action:
     type: shell.Subprocess
-    command:
-      - echo
+    command_name: echo
+    args:
       - "hello world!!"
    transition_conditions:
     - type: assertions.IntEqual
