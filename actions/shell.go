@@ -9,8 +9,8 @@ import (
 )
 
 type SubprocessResult struct {
-	output     []byte
-	returncode int
+	Output     []byte
+	Returncode int
 	err        error
 }
 
@@ -19,9 +19,12 @@ func (s SubprocessResult) Error() error {
 }
 
 func (s SubprocessResult) ValueOfProperty(property string) (results.Value, error) {
-	if property == "returncode" {
-		return results.IntValue{V: s.returncode}, nil
-	} else {
+	switch property {
+	case "returncode":
+		return results.IntValue{V: s.Returncode}, nil
+	case "output":
+		return results.StringValue{V: string(s.Output)}, nil
+	default:
 		return nil, fmt.Errorf("No property %s in %+v", property, s)
 	}
 }
@@ -40,8 +43,8 @@ func (s Subprocess) Execute() (results.Result, error) {
 	}
 
 	return SubprocessResult{
-		output:     out,
-		returncode: 0,
+		Output:     out,
+		Returncode: 0,
 	}, nil
 }
 

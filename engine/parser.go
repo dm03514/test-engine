@@ -27,16 +27,15 @@ type intermediaryState struct {
 func (is intermediaryState) ParsedTransCons(tcr TransConsRegistry) (transcons.Conditions, error) {
 	var err error
 	var parsedCondition transcons.TransCon
-	conditions := []transcons.TransCon{}
+	conditions := make([]transcons.TransCon, len(is.TransitionConditions))
 
-	for _, tc := range is.TransitionConditions {
+	for i, tc := range is.TransitionConditions {
 		parsedCondition, err = tcr.Load(tc)
 
 		if err != nil {
 			return transcons.Conditions{}, err
 		}
-
-		conditions = append(conditions, parsedCondition)
+		conditions[i] = parsedCondition
 	}
 
 	return transcons.Conditions{
