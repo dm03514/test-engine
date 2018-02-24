@@ -9,8 +9,8 @@ import (
 )
 
 type SubprocessResult struct {
-	output     []byte
-	returncode int
+	Output     []byte
+	Returncode int
 	err        error
 }
 
@@ -19,9 +19,12 @@ func (s SubprocessResult) Error() error {
 }
 
 func (s SubprocessResult) ValueOfProperty(property string) (results.Value, error) {
-	if property == "returncode" {
-		return results.IntValue{V: s.returncode}, nil
-	} else {
+	switch property {
+	case "returncode":
+		return results.IntValue{V: s.Returncode}, nil
+	case "output":
+		return results.StringValue{V: string(s.Output)}, nil
+	default:
 		return nil, fmt.Errorf("No property %s in %+v", property, s)
 	}
 }
@@ -29,10 +32,36 @@ func (s SubprocessResult) ValueOfProperty(property string) (results.Value, error
 type Subprocess struct {
 	CommandName string `mapstructure:"command_name"`
 	Args        []string
+	Overrides   []results.Override
 }
 
-func (s Subprocess) Execute() (results.Result, error) {
-	cmd := exec.Command(s.CommandName, s.Args...)
+func (s Subprocess) ApplyOverrides(rs results.Results) (string, []string) {
+	var err error
+	cn := s.CommandName
+	args := make([]string, len(s.Args))
+	for _, o := range s.Overrides {
+		cn, err = o.Apply(rs, cn)
+		if err != nil {
+			panic(err)
+		}
+
+		for i, arg := range s.Args {
+			arg, err = o.Apply(rs, arg)
+			if err != nil {
+				panic(err)
+			}
+			args[i] = arg
+		}
+		s.Args = args
+	}
+
+	return cn, s.Args
+}
+
+func (s Subprocess) Execute(rs results.Results) (results.Result, error) {
+	cn, args := s.ApplyOverrides(rs)
+	log.Infof("shell.Execute() command: `%s` args: `%s`", cn, args)
+	cmd := exec.Command(cn, args...)
 	out, err := cmd.CombinedOutput()
 	log.Infof("Execute() Subprocess out: %s, err: %s", out, err)
 	if err != nil {
@@ -40,8 +69,8 @@ func (s Subprocess) Execute() (results.Result, error) {
 	}
 
 	return SubprocessResult{
-		output:     out,
-		returncode: 0,
+		Output:     out,
+		Returncode: 0,
 	}, nil
 }
 

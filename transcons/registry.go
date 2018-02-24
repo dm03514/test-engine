@@ -22,7 +22,8 @@ func (tcr TransConsRegistry) Load(tcm map[string]interface{}) (TransCon, error) 
 func NewTransConsRegistry() (TransConsRegistry, error) {
 	return TransConsRegistry{
 		m: map[string]transConsLoader{
-			"assertions.IntEqual": NewIntEqualFromMap,
+			"assertions.IntEqual":    NewIntEqualFromMap,
+			"assertions.StringEqual": NewStringEqualFromMap,
 		},
 	}, nil
 }

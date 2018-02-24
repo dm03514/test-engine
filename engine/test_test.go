@@ -14,8 +14,8 @@ func TestEngine_Run(t *testing.T) {
 		States: []State{
 			fulfillment.NoopFulillment{
 				Action: actions.Subprocess{
-					"echo",
-					[]string{"hello world!"},
+					CommandName: "echo",
+					Args:        []string{"hello world!"},
 				},
 				Conditions: transcons.Conditions{
 					[]transcons.TransCon{
