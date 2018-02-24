@@ -32,10 +32,36 @@ func (s SubprocessResult) ValueOfProperty(property string) (results.Value, error
 type Subprocess struct {
 	CommandName string `mapstructure:"command_name"`
 	Args        []string
+	Overrides   []results.Override
 }
 
-func (s Subprocess) Execute() (results.Result, error) {
-	cmd := exec.Command(s.CommandName, s.Args...)
+func (s Subprocess) ApplyOverrides(rs results.Results) (string, []string) {
+	var err error
+	cn := s.CommandName
+	args := make([]string, len(s.Args))
+	for _, o := range s.Overrides {
+		cn, err = o.Apply(rs, cn)
+		if err != nil {
+			panic(err)
+		}
+
+		for i, arg := range s.Args {
+			arg, err = o.Apply(rs, arg)
+			if err != nil {
+				panic(err)
+			}
+			args[i] = arg
+		}
+		s.Args = args
+	}
+
+	return cn, s.Args
+}
+
+func (s Subprocess) Execute(rs results.Results) (results.Result, error) {
+	cn, args := s.ApplyOverrides(rs)
+	log.Infof("shell.Execute() command: `%s` args: `%s`", cn, args)
+	cmd := exec.Command(cn, args...)
 	out, err := cmd.CombinedOutput()
 	log.Infof("Execute() Subprocess out: %s, err: %s", out, err)
 	if err != nil {

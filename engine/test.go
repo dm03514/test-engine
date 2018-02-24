@@ -9,7 +9,8 @@ import (
 )
 
 type State interface {
-	Execute() <-chan results.Result
+	Execute(results.Results) <-chan results.Result
+	Name() string
 }
 
 type Test struct {
@@ -21,14 +22,15 @@ type Test struct {
 type Engine struct {
 	Test
 	currentState int
+	rs           *results.Results
 }
 
-func (e *Engine) ExecuteState() <-chan results.Result {
+func (e *Engine) ExecuteState() (State, <-chan results.Result) {
 	s := e.States[e.currentState]
 	log.Infof("ExecuteState() %+v", s)
-	c := s.Execute()
+	c := s.Execute(*e.rs)
 	e.currentState++
-	return c
+	return s, c
 }
 
 func (e *Engine) IsLastState() bool {
@@ -38,10 +40,11 @@ func (e *Engine) IsLastState() bool {
 
 func (e Engine) Run(ctx context.Context) error {
 	log.Infof("Run()")
+	e.rs = results.New()
 
 engineloop:
 	for {
-		s := e.ExecuteState()
+		s, resultChan := e.ExecuteState()
 
 	stateexecutionloop:
 		for {
@@ -50,7 +53,7 @@ engineloop:
 				return fmt.Errorf("Context Done().")
 			case <-time.After(e.Timeout):
 				return fmt.Errorf("Timeout")
-			case r, more := <-s:
+			case r, more := <-resultChan:
 				log.Infof("Read From state %+v. (more = %+v)", r, more)
 
 				if !more && e.IsLastState() {
@@ -64,6 +67,8 @@ engineloop:
 				if r.Error() != nil {
 					return r.Error()
 				}
+
+				e.rs.Add(s.Name(), r)
 			}
 		}
 	}

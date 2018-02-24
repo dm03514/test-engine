@@ -55,7 +55,8 @@ func (se StringEqual) Evaluate(r results.Result) results.Result {
 	if v.String() != se.ToEqual {
 		return results.ErrorResult{
 			From: r,
-			Err:  fmt.Errorf("%+v != %+v", se.ToEqual, v.String()),
+			Err: fmt.Errorf("%q != %q, expected %q, received %q",
+				se.ToEqual, v.String(), se.ToEqual, v.String()),
 		}
 	}
 	return r

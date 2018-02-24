@@ -1,11 +1,11 @@
 package engine
 
 import (
-	"fmt"
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/fulfillment"
 	"github.com/dm03514/test-engine/transcons"
 	"github.com/go-yaml/yaml"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -53,6 +53,7 @@ func (is intermediaryState) State(ar ActionRegistry, tcr TransConsRegistry) (Sta
 		return nil, err
 	}
 	return fulfillment.NoopFulillment{
+		N:          is.Name,
 		Action:     action,
 		Conditions: conditions,
 	}, nil
@@ -79,10 +80,10 @@ func New(b []byte, ar ActionRegistry, tcr TransConsRegistry) (*Engine, error) {
 		return nil, err
 	}
 
-	fmt.Printf("%+v\n", it)
+	log.Infof("Parsing: %+v", it)
 	states := []State{}
 	for _, ps := range it.States {
-		fmt.Printf("%+v\n", ps)
+		log.Infof("Parsing State: %+v", ps)
 		s, err := ps.State(ar, tcr)
 		if err != nil {
 			return nil, err

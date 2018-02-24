@@ -9,17 +9,18 @@ import (
 
 type NoopFulillment struct {
 	actions.Action
-
 	transcons.Conditions
+
+	N string
 }
 
-func (n NoopFulillment) Execute() <-chan results.Result {
+func (n NoopFulillment) Execute(rs results.Results) <-chan results.Result {
 	log.Infof("NoopFulfillment()")
 	c := make(chan results.Result)
 	// execute the action in another go routine, run the conditions
 	// against the result
 	go func() {
-		r, err := n.Action.Execute()
+		r, err := n.Action.Execute(rs)
 		if err != nil {
 			c <- results.ErrorResult{
 				From: r,
@@ -34,4 +35,8 @@ func (n NoopFulillment) Execute() <-chan results.Result {
 	}()
 
 	return c
+}
+
+func (n NoopFulillment) Name() string {
+	return n.N
 }
