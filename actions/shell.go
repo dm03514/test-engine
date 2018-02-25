@@ -35,31 +35,34 @@ type Subprocess struct {
 	Overrides   []results.Override
 }
 
-func (s Subprocess) ApplyOverrides(rs results.Results) (string, []string) {
+func (s Subprocess) applyOverrides(rs results.Results) (string, []string, error) {
 	var err error
 	cn := s.CommandName
 	args := make([]string, len(s.Args))
 	for _, o := range s.Overrides {
 		cn, err = o.Apply(rs, cn)
 		if err != nil {
-			panic(err)
+			return "", nil, err
 		}
 
 		for i, arg := range s.Args {
 			arg, err = o.Apply(rs, arg)
 			if err != nil {
-				panic(err)
+				return "", nil, err
 			}
 			args[i] = arg
 		}
 		s.Args = args
 	}
 
-	return cn, s.Args
+	return cn, s.Args, nil
 }
 
 func (s Subprocess) Execute(rs results.Results) (results.Result, error) {
-	cn, args := s.ApplyOverrides(rs)
+	cn, args, err := s.applyOverrides(rs)
+	if err != nil {
+		return nil, err
+	}
 	log.Infof("shell.Execute() command: `%s` args: `%s`", cn, args)
 	cmd := exec.Command(cn, args...)
 	out, err := cmd.CombinedOutput()

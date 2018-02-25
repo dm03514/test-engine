@@ -68,7 +68,12 @@ engineloop:
 					return r.Error()
 				}
 
-				e.rs.Add(s.Name(), r)
+				e.rs.Add(
+					results.NamedResult{
+						Name:   s.Name(),
+						Result: r,
+					},
+				)
 			}
 		}
 	}

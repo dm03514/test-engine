@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+type NamedResult struct {
+	Name string
+
+	Result
+}
+
 type Result interface {
 	Error() error
 	ValueOfProperty(property string) (Value, error)
@@ -61,7 +67,7 @@ type Override struct {
 	ToReplace     string `mapstructure:"to_replace"`
 }
 
-func (o Override) Apply(rs Results, target string) (string, error) {
+func (o Override) Apply(rs Results, src string) (string, error) {
 	REPLACE_ALL := -1
 	r, err := rs.Get(o.FromState)
 	if err != nil {
@@ -71,9 +77,9 @@ func (o Override) Apply(rs Results, target string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	replaced := strings.Replace(target, o.ToReplace, v.String(), REPLACE_ALL)
-	log.Infof("Override.Apply() -> replacing %s with %s in %s -> %s",
-		o.ToReplace, v.String(), target, replaced)
+	replaced := strings.Replace(src, o.ToReplace, v.String(), REPLACE_ALL)
+	log.Infof("Override.Apply() -> replacing %q with %q in %q -> %q",
+		o.ToReplace, v.String(), src, replaced)
 	return replaced, nil
 }
 
@@ -81,9 +87,9 @@ type Results struct {
 	byStateName map[string]Result
 }
 
-func (rs *Results) Add(k string, r Result) {
-	log.Infof("Results.Add(%s, %+v)", k, r)
-	rs.byStateName[k] = r
+func (rs *Results) Add(r NamedResult) {
+	log.Infof("Results.Add(%s, %+v)", r.Name, r)
+	rs.byStateName[r.Name] = r
 }
 
 func (rs *Results) Get(k string) (Result, error) {
@@ -95,8 +101,12 @@ func (rs *Results) Get(k string) (Result, error) {
 	return r, nil
 }
 
-func New() *Results {
-	return &Results{
+func New(nrs ...NamedResult) *Results {
+	rs := &Results{
 		byStateName: make(map[string]Result),
 	}
+	for _, r := range nrs {
+		rs.Add(r)
+	}
+	return rs
 }
