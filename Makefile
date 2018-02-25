@@ -6,7 +6,7 @@ test-unit:
 
 build:
 	go build -o $(EXECUTOR_BIN) ./commands/test-executor
-	go build ./commands/test-server
+	go build ./commands/engine-server
 
 test-functional:
 	./$(EXECUTOR_BIN) -test $(shell pwd)/tests/subprocess_exit_code.yml
