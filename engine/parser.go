@@ -91,11 +91,11 @@ func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry) (*Engine, e
 		states = append(states, s)
 	}
 
-	return &Engine{
-		Test: Test{
+	return New(
+		Test{
 			Name:    it.Name,
 			Timeout: it.TimeoutDuration(),
 			States:  states,
 		},
-	}, nil
+	), nil
 }

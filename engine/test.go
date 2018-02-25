@@ -19,10 +19,22 @@ type Test struct {
 	Timeout time.Duration
 }
 
+func New(t Test) *Engine {
+	return &Engine{
+		Test:                t,
+		recordStateDuration: NoopDurationRecorder,
+		recordTestDuration:  NoopDurationRecorder,
+	}
+}
+
 type Engine struct {
 	Test
+
 	currentState int
 	rs           *results.Results
+
+	recordStateDuration func(d time.Duration, err error)
+	recordTestDuration  func(d time.Duration, err error)
 }
 
 func (e *Engine) ExecuteState() (State, <-chan results.Result) {
@@ -40,10 +52,13 @@ func (e *Engine) IsLastState() bool {
 
 func (e Engine) Run(ctx context.Context) error {
 	log.Infof("Run()")
+	testExecutionStart := time.Now()
 	e.rs = results.New()
 
 engineloop:
 	for {
+
+		stateExecutionStart := time.Now()
 		s, resultChan := e.ExecuteState()
 
 	stateexecutionloop:
@@ -61,10 +76,22 @@ engineloop:
 				}
 
 				if !more {
+					e.recordStateDuration(
+						time.Now().Sub(stateExecutionStart),
+						nil,
+					)
 					break stateexecutionloop
 				}
 
 				if r.Error() != nil {
+					e.recordStateDuration(
+						time.Now().Sub(stateExecutionStart),
+						r.Error(),
+					)
+					e.recordTestDuration(
+						time.Now().Sub(testExecutionStart),
+						r.Error(),
+					)
 					return r.Error()
 				}
 
@@ -77,6 +104,11 @@ engineloop:
 			}
 		}
 	}
+
+	e.recordTestDuration(
+		time.Now().Sub(testExecutionStart),
+		nil,
+	)
 
 	return nil
 }
