@@ -61,9 +61,7 @@ func NewFileLoader(dir string, ar ActionRegistry, tcr TransConsRegistry) (FileLo
 }
 
 type MemoryLoader struct {
-	m   map[string]*Engine
-	ar  ActionRegistry
-	tcr TransConsRegistry
+	m map[string]*Engine
 }
 
 func (ml *MemoryLoader) Load(name string) (*Engine, error) {
