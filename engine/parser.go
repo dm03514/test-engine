@@ -97,5 +97,5 @@ func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry) (*Engine, e
 			Timeout: it.TimeoutDuration(),
 			States:  states,
 		},
-	), nil
+	)
 }

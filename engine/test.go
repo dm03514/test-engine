@@ -19,12 +19,18 @@ type Test struct {
 	Timeout time.Duration
 }
 
-func New(t Test) *Engine {
-	return &Engine{
+func New(t Test, opts ...Option) (*Engine, error) {
+	e := &Engine{
 		Test:                t,
 		recordStateDuration: NoopDurationRecorder,
 		recordTestDuration:  NoopDurationRecorder,
 	}
+
+	for _, opt := range opts {
+		opt(e)
+	}
+
+	return e, nil
 }
 
 type Engine struct {
@@ -33,8 +39,8 @@ type Engine struct {
 	currentState int
 	rs           *results.Results
 
-	recordStateDuration func(d time.Duration, err error)
-	recordTestDuration  func(d time.Duration, err error)
+	recordStateDuration DurationRecorder
+	recordTestDuration  DurationRecorder
 }
 
 func (e *Engine) ExecuteState() (State, <-chan results.Result) {

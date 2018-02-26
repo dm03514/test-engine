@@ -30,9 +30,12 @@ func TestEngine_Run(t *testing.T) {
 		Timeout: time.Duration(1 * time.Minute),
 	}
 
-	e := New(test)
+	e, err := New(test)
+	if err != nil {
+		t.Error(err)
+	}
 	ctx := context.Background()
-	err := e.Run(ctx)
+	err = e.Run(ctx)
 
 	if err != nil {
 		t.Error(err)
