@@ -35,10 +35,10 @@ type Loader interface {
 }
 
 type FileLoader struct {
-	Dir string
-	ar  ActionRegistry
-	tcr TransConsRegistry
-	ef  Factory
+	Dir               string
+	actionRegistry    ActionRegistry
+	transConsRegistry TransConsRegistry
+	engineFactory     Factory
 }
 
 // Load the test from the Dir matching the name
@@ -49,16 +49,21 @@ func (fl FileLoader) Load(name string) (*Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	engine, err := NewFromYaml(content, fl.ar, fl.tcr, fl.ef)
+	engine, err := NewFromYaml(
+		content,
+		fl.actionRegistry,
+		fl.transConsRegistry,
+		fl.engineFactory,
+	)
 	return engine, err
 }
 
 func NewFileLoader(dir string, ar ActionRegistry, tcr TransConsRegistry, ef Factory) (FileLoader, error) {
 	return FileLoader{
-		Dir: dir,
-		ar:  ar,
-		tcr: tcr,
-		ef:  ef,
+		Dir:               dir,
+		actionRegistry:    ar,
+		transConsRegistry: tcr,
+		engineFactory:     ef,
 	}, nil
 }
 
