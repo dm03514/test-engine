@@ -24,7 +24,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	loader, err := engine.NewFileLoader(*testsDir, ar, tcr)
+	loader, err := engine.NewFileLoader(*testsDir, ar, tcr, engine.NewDefaultFactory())
 	if err != nil {
 		log.Panic(err)
 	}
@@ -38,5 +38,5 @@ func main() {
 		log.Panic(err)
 	}
 
-	s.ListenAndServer()
+	s.ListenAndServe()
 }

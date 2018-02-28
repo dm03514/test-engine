@@ -44,7 +44,7 @@ func (he httpExecutor) execute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Test: %q started", html.EscapeString(testName))
 }
 
-func (he httpExecutor) ListenAndServer() {
+func (he httpExecutor) ListenAndServe() {
 	http.HandleFunc("/execute", he.execute)
 
 	s := &http.Server{

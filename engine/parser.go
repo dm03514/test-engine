@@ -73,7 +73,7 @@ func (it intermediaryTest) TimeoutDuration() time.Duration {
 	return time.Duration(time.Duration(to) * time.Second)
 }
 
-func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry) (*Engine, error) {
+func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry, f Factory) (*Engine, error) {
 	it := intermediaryTest{}
 	err := yaml.Unmarshal(b, &it)
 	if err != nil {
@@ -91,7 +91,7 @@ func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry) (*Engine, e
 		states = append(states, s)
 	}
 
-	return New(
+	return f.New(
 		Test{
 			Name:    it.Name,
 			Timeout: it.TimeoutDuration(),

@@ -1,7 +1,6 @@
 package prometheus
 
 import (
-	"github.com/dm03514/test-engine/engine"
 	"github.com/prometheus/client_golang/prometheus"
 	"time"
 )
@@ -27,6 +26,7 @@ func (h *HistogramVecDurationRecorder) Record(d time.Duration, err error) {
 	h.HistogramVec.With(prometheus.Labels{"result": errToResult(err)}).Observe(d.Seconds())
 }
 
+/*
 func New(t engine.Test, opts ...engine.Option) (*engine.Engine, error) {
 
 	stateDuration := HistogramVecDurationRecorder{
@@ -69,3 +69,4 @@ func New(t engine.Test, opts ...engine.Option) (*engine.Engine, error) {
 		opts...,
 	)
 }
+*/

@@ -26,7 +26,7 @@ func main() {
 
 	dir, file := filepath.Split(*fp)
 
-	fl, err := engine.NewFileLoader(dir, ar, tcr)
+	fl, err := engine.NewFileLoader(dir, ar, tcr, engine.NewDefaultFactory())
 	if err != nil {
 		log.Panic(err)
 	}

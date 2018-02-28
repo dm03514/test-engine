@@ -19,20 +19,6 @@ type Test struct {
 	Timeout time.Duration
 }
 
-func New(t Test, opts ...Option) (*Engine, error) {
-	e := &Engine{
-		Test:                t,
-		recordStateDuration: NoopDurationRecorder,
-		recordTestDuration:  NoopDurationRecorder,
-	}
-
-	for _, opt := range opts {
-		opt(e)
-	}
-
-	return e, nil
-}
-
 type Engine struct {
 	Test
 

@@ -38,6 +38,7 @@ type FileLoader struct {
 	Dir string
 	ar  ActionRegistry
 	tcr TransConsRegistry
+	ef  Factory
 }
 
 // Load the test from the Dir matching the name
@@ -48,15 +49,16 @@ func (fl FileLoader) Load(name string) (*Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	engine, err := NewFromYaml(content, fl.ar, fl.tcr)
+	engine, err := NewFromYaml(content, fl.ar, fl.tcr, fl.ef)
 	return engine, err
 }
 
-func NewFileLoader(dir string, ar ActionRegistry, tcr TransConsRegistry) (FileLoader, error) {
+func NewFileLoader(dir string, ar ActionRegistry, tcr TransConsRegistry, ef Factory) (FileLoader, error) {
 	return FileLoader{
 		Dir: dir,
 		ar:  ar,
 		tcr: tcr,
+		ef:  ef,
 	}, nil
 }
 
