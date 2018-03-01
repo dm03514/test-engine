@@ -11,13 +11,13 @@ import (
 
 type HTTPOpt string
 
-type httpExecutor struct {
+type HttpExecutor struct {
 	Addr string
 
 	Loaders Loaders
 }
 
-func (he httpExecutor) execute(w http.ResponseWriter, r *http.Request) {
+func (he HttpExecutor) Execute(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -44,12 +44,9 @@ func (he httpExecutor) execute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Test: %q started", html.EscapeString(testName))
 }
 
-func (he httpExecutor) ListenAndServe() {
-	http.HandleFunc("/execute", he.execute)
-
+func (he HttpExecutor) ListenAndServe() {
 	s := &http.Server{
 		Addr: he.Addr,
-		// Handler:        myHandler,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
@@ -57,8 +54,12 @@ func (he httpExecutor) ListenAndServe() {
 	log.Fatal(s.ListenAndServe())
 }
 
-func NewHTTPExecutor(loaders Loaders, opts ...HTTPOpt) (httpExecutor, error) {
-	return httpExecutor{
+func (he HttpExecutor) RegisterHandlers() {
+	http.HandleFunc("/execute", he.Execute)
+}
+
+func NewHTTPExecutor(loaders Loaders, opts ...HTTPOpt) (HttpExecutor, error) {
+	return HttpExecutor{
 		Addr:    ":8080",
 		Loaders: loaders,
 	}, nil

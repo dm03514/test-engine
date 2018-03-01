@@ -3,6 +3,7 @@ package prometheus
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"time"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -24,49 +25,5 @@ type HistogramVecDurationRecorder struct {
 
 func (h *HistogramVecDurationRecorder) Record(d time.Duration, err error) {
 	h.HistogramVec.With(prometheus.Labels{"result": errToResult(err)}).Observe(d.Seconds())
+	log.Infof("prometheus.Record(%s, %+v, errToResult(%q), %+v", d, err, errToResult(err), h.HistogramVec)
 }
-
-/*
-func New(t engine.Test, opts ...engine.Option) (*engine.Engine, error) {
-
-	stateDuration := HistogramVecDurationRecorder{
-		HistogramVec: prometheus.NewHistogramVec(
-			prometheus.HistogramOpts{
-				Name: "state_duration",
-				Help: "Duration of an individual state result:pass|fail",
-			},
-			[]string{"result"},
-		),
-	}
-	if err := prometheus.Register(stateDuration); err != nil {
-		return nil, err
-	}
-
-	testDuration := HistogramVecDurationRecorder{
-		HistogramVec: prometheus.NewHistogramVec(
-			prometheus.HistogramOpts{
-				Name: "test_duration",
-				Help: "Duration of a complete test with result:pass|fail",
-			},
-			[]string{"result"},
-		),
-	}
-	if err := prometheus.Register(testDuration); err != nil {
-		return nil, err
-	}
-
-	// prepend opts to opts
-	opts = append(
-		[]engine.Option{
-			engine.OptionRecordStateDuration(stateDuration.Record),
-			engine.OptionRecordTestDuration(testDuration.Record),
-		},
-		opts...,
-	)
-
-	return engine.New(
-		t,
-		opts...,
-	)
-}
-*/
