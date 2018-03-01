@@ -11,8 +11,8 @@ type DefaultFactory struct {
 func (d DefaultFactory) New(t Test, opts ...Option) (*Engine, error) {
 	e := &Engine{
 		Test:                t,
-		recordStateDuration: NoopDurationRecorder,
-		recordTestDuration:  NoopDurationRecorder,
+		recordStateDuration: NoopStateDurationRecorder,
+		recordTestDuration:  NoopTestDurationRecorder,
 	}
 
 	for _, opt := range d.extraOpts {

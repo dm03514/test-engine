@@ -2,6 +2,9 @@ package engine
 
 import "time"
 
-type DurationRecorder func(d time.Duration, err error)
+type StateDurationRecorder func(stateName string, testName string, d time.Duration, err error)
+type TestDurationRecorder func(testName string, d time.Duration, err error)
 
-func NoopDurationRecorder(d time.Duration, err error) {}
+func NoopStateDurationRecorder(stateName string, testName string, d time.Duration, err error) {}
+
+func NoopTestDurationRecorder(testName string, d time.Duration, err error) {}

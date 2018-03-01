@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/engine"
 	ep "github.com/dm03514/test-engine/engine/prometheus"
@@ -9,13 +10,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"net/http"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"fmt"
 )
 
 type HTTPExecutor interface {
-	Execute(http.ResponseWriter, *http.Request)
 	ListenAndServe()
 	RegisterHandlers()
 }
@@ -46,42 +43,30 @@ func defaultServer(testsDir string) (HTTPExecutor, error) {
 }
 
 func prometheusServer(testsDir string) (HTTPExecutor, error) {
-	/*
-	stateDuration := ep.HistogramVecDurationRecorder{
+	stateDuration := ep.HistogramVecStateDurationRecorder{
 		HistogramVec: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
 				Name: "state_duration",
 				Help: "Duration of an individual state result:pass|fail",
 			},
-			[]string{"result"},
+			[]string{"result", "state_name", "test_name"},
 		),
 	}
-	*/
 
-	testDuration := prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name: "test_duration_seconds",
-			Help: "Duration of a complete test with result:pass|fail",
-		},
-		[]string{"result"},
-	)
-
-	fmt.Printf("REGISTERING\n")
-	prometheus.MustRegister(testDuration)
-
-	/*
-	t, err := time.ParseDuration("1s")
-	if err != nil {
-		panic(err)
+	testDuration := ep.HistogramVecTestDurationRecorder{
+		prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Name: "test_duration_seconds",
+				Help: "Duration of a complete test with result:pass|fail",
+			},
+			[]string{"result", "test_name"},
+		),
 	}
-	*/
-	http.Handle("/metrics", promhttp.Handler())
 
-	fmt.Printf("OBSERVING\n")
-	testDuration.With(prometheus.Labels{"result": "pass"}).Observe(1)
-	testDuration.With(prometheus.Labels{"result": "pass"}).Observe(1)
-	testDuration.With(prometheus.Labels{"result": "pass"}).Observe(1)
-	// testDuration.Record(t, nil)
+	prometheus.MustRegister(
+		testDuration,
+		stateDuration,
+	)
 
 	ar, err := actions.NewActionRegistry()
 	if err != nil {
@@ -98,8 +83,8 @@ func prometheusServer(testsDir string) (HTTPExecutor, error) {
 		ar,
 		tcr,
 		engine.NewDefaultFactory(
-			// engine.OptionRecordStateDuration(stateDuration.Record),
-			// engine.OptionRecordTestDuration(testDuration.Record),
+			engine.OptionRecordStateDuration(stateDuration.Record),
+			engine.OptionRecordTestDuration(testDuration.Record),
 		),
 	)
 	if err != nil {
@@ -141,11 +126,11 @@ func main() {
 	}
 
 	// http.Handle("/metrics", promhttp.Handler())
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// log.Fatal(http.ListenAndServe(":8080", nil))
 	/*
-	// s.RegisterHandlers()
-	http.HandleFunc("/execute", s.Execute)
-	http.Handle("/metrics", promhttp.Handler())
-	s.ListenAndServe()
+		http.HandleFunc("/execute", s.Execute)
+		http.Handle("/metrics", promhttp.Handler())
 	*/
+	s.RegisterHandlers()
+	s.ListenAndServe()
 }

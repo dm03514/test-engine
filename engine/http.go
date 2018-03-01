@@ -46,7 +46,7 @@ func (he HttpExecutor) Execute(w http.ResponseWriter, r *http.Request) {
 
 func (he HttpExecutor) ListenAndServe() {
 	s := &http.Server{
-		Addr: he.Addr,
+		Addr:         he.Addr,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

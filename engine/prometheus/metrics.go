@@ -2,8 +2,8 @@ package prometheus
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"time"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 const (
@@ -19,11 +19,29 @@ func errToResult(err error) string {
 	return fail
 }
 
-type HistogramVecDurationRecorder struct {
+type HistogramVecStateDurationRecorder struct {
 	*prometheus.HistogramVec
 }
 
-func (h *HistogramVecDurationRecorder) Record(d time.Duration, err error) {
-	h.HistogramVec.With(prometheus.Labels{"result": errToResult(err)}).Observe(d.Seconds())
-	log.Infof("prometheus.Record(%s, %+v, errToResult(%q), %+v", d, err, errToResult(err), h.HistogramVec)
+func (h *HistogramVecStateDurationRecorder) Record(sn string, tn string, d time.Duration, err error) {
+	log.Infof("prometheus.Record(%s, %+v, errToResult(%q), %q, %q, %+v",
+		d, err, errToResult(err), sn, tn, h.HistogramVec)
+	h.HistogramVec.With(prometheus.Labels{
+		"result":     errToResult(err),
+		"state_name": sn,
+		"test_name":  tn,
+	}).Observe(d.Seconds())
+}
+
+type HistogramVecTestDurationRecorder struct {
+	*prometheus.HistogramVec
+}
+
+func (h *HistogramVecTestDurationRecorder) Record(tn string, d time.Duration, err error) {
+	log.Infof("prometheus.Record(%s, %+v, errToResult(%q), %q, %+v",
+		d, err, errToResult(err), tn, h.HistogramVec)
+	h.HistogramVec.With(prometheus.Labels{
+		"result":    errToResult(err),
+		"test_name": tn,
+	}).Observe(d.Seconds())
 }

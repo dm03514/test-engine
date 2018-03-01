@@ -25,8 +25,8 @@ type Engine struct {
 	currentState int
 	rs           *results.Results
 
-	recordStateDuration DurationRecorder
-	recordTestDuration  DurationRecorder
+	recordStateDuration StateDurationRecorder
+	recordTestDuration  TestDurationRecorder
 }
 
 func (e *Engine) ExecuteState() (State, <-chan results.Result) {
@@ -69,6 +69,8 @@ engineloop:
 
 				if !more {
 					e.recordStateDuration(
+						s.Name(),
+						e.Test.Name,
 						time.Now().Sub(stateExecutionStart),
 						nil,
 					)
@@ -77,10 +79,13 @@ engineloop:
 
 				if r.Error() != nil {
 					e.recordStateDuration(
+						s.Name(),
+						e.Test.Name,
 						time.Now().Sub(stateExecutionStart),
 						r.Error(),
 					)
 					e.recordTestDuration(
+						e.Test.Name,
 						time.Now().Sub(testExecutionStart),
 						r.Error(),
 					)
@@ -98,6 +103,7 @@ engineloop:
 	}
 
 	e.recordTestDuration(
+		e.Test.Name,
 		time.Now().Sub(testExecutionStart),
 		nil,
 	)
