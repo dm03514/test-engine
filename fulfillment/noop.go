@@ -11,7 +11,7 @@ type NoopFulillment struct {
 	actions.Action
 	transcons.Conditions
 
-	N string
+	name string
 }
 
 func (n NoopFulillment) Execute(rs results.Results) <-chan results.Result {
@@ -38,5 +38,13 @@ func (n NoopFulillment) Execute(rs results.Results) <-chan results.Result {
 }
 
 func (n NoopFulillment) Name() string {
-	return n.N
+	return n.name
+}
+
+func NewNoop(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (NoopFulillment, error) {
+	return NoopFulillment{
+		Action:     a,
+		Conditions: cs,
+		name:       name,
+	}, nil
 }
