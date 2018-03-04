@@ -21,8 +21,12 @@ type Test struct {
 
 type Engine struct {
 	Test
+
 	currentState int
 	rs           *results.Results
+
+	recordStateDuration StateDurationRecorder
+	recordTestDuration  TestDurationRecorder
 }
 
 func (e *Engine) ExecuteState() (State, <-chan results.Result) {
@@ -40,10 +44,13 @@ func (e *Engine) IsLastState() bool {
 
 func (e Engine) Run(ctx context.Context) error {
 	log.Infof("Run()")
+	testExecutionStart := time.Now()
 	e.rs = results.New()
 
 engineloop:
 	for {
+
+		stateExecutionStart := time.Now()
 		s, resultChan := e.ExecuteState()
 
 	stateexecutionloop:
@@ -61,17 +68,45 @@ engineloop:
 				}
 
 				if !more {
+					e.recordStateDuration(
+						s.Name(),
+						e.Test.Name,
+						time.Now().Sub(stateExecutionStart),
+						nil,
+					)
 					break stateexecutionloop
 				}
 
 				if r.Error() != nil {
+					e.recordStateDuration(
+						s.Name(),
+						e.Test.Name,
+						time.Now().Sub(stateExecutionStart),
+						r.Error(),
+					)
+					e.recordTestDuration(
+						e.Test.Name,
+						time.Now().Sub(testExecutionStart),
+						r.Error(),
+					)
 					return r.Error()
 				}
 
-				e.rs.Add(s.Name(), r)
+				e.rs.Add(
+					results.NamedResult{
+						Name:   s.Name(),
+						Result: r,
+					},
+				)
 			}
 		}
 	}
+
+	e.recordTestDuration(
+		e.Test.Name,
+		time.Now().Sub(testExecutionStart),
+		nil,
+	)
 
 	return nil
 }

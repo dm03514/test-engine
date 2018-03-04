@@ -21,6 +21,7 @@ func NewActionRegistry() (ActionRegistry, error) {
 	return ActionRegistry{
 		m: map[string]actionLoader{
 			"shell.Subprocess": NewSubprocessFromMap,
+			"http.Http":        NewHttpFromMap,
 		},
 	}, nil
 }

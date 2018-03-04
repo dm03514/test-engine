@@ -3,52 +3,46 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/engine"
 	"github.com/dm03514/test-engine/transcons"
-	"io/ioutil"
+	log "github.com/sirupsen/logrus"
+	"path/filepath"
 )
 
 func main() {
 	var fp = flag.String("test", "", "test to execute")
 	flag.Parse()
-	content, err := ioutil.ReadFile(*fp)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s", content)
+
 	ar, err := actions.NewActionRegistry()
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
+
 	tcr, err := transcons.NewTransConsRegistry()
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
-	engine, err := engine.New(content, ar, tcr)
+
+	dir, file := filepath.Split(*fp)
+
+	fl, err := engine.NewFileLoader(dir, ar, tcr, engine.NewDefaultFactory())
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
-	fmt.Printf("%+v\n", engine)
+
+	engine, err := fl.Load(file)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	log.Infof("%+v\n", engine)
 
 	err = engine.Run(context.Background())
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
-	/*
-		result, err = engine.New(
-			parser.NewYAML(
-				parser.NewEnvVar(
-					parser.NewUnqique(
-						LoadFile(path)
-					)
-				)
-			) -> TestStateMachine
-		).Run()
-	*/
-
-	// Test State Machine
-	fmt.Println("SUCCESS")
+	log.Infof("SUCCESS")
 }

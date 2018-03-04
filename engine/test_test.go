@@ -10,31 +10,34 @@ import (
 )
 
 func TestEngine_Run(t *testing.T) {
-	test := Test{
-		States: []State{
-			fulfillment.NoopFulillment{
-				Action: actions.Subprocess{
-					CommandName: "echo",
-					Args:        []string{"hello world!"},
-				},
-				Conditions: transcons.Conditions{
-					[]transcons.TransCon{
-						transcons.IntEqual{
-							UsingProperty: "returncode",
-							ToEqual:       0,
+	f := NewDefaultFactory()
+	e, err := f.New(
+		Test{
+			States: []State{
+				fulfillment.NoopFulillment{
+					Action: actions.Subprocess{
+						CommandName: "echo",
+						Args:        []string{"hello world!"},
+					},
+					Conditions: transcons.Conditions{
+						[]transcons.TransCon{
+							transcons.IntEqual{
+								UsingProperty: "returncode",
+								ToEqual:       0,
+							},
 						},
 					},
 				},
 			},
+			Timeout: time.Duration(1 * time.Minute),
 		},
-		Timeout: time.Duration(1 * time.Minute),
-	}
+	)
 
-	e := Engine{
-		Test: test,
+	if err != nil {
+		t.Error(err)
 	}
 	ctx := context.Background()
-	err := e.Run(ctx)
+	err = e.Run(ctx)
 
 	if err != nil {
 		t.Error(err)
