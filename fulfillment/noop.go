@@ -7,20 +7,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type NoopFulillment struct {
-	actions.Action
-	transcons.Conditions
+type NoopFulfillment struct {
+	a  actions.Action
+	cs transcons.Conditions
 
 	name string
 }
 
-func (n NoopFulillment) Execute(rs results.Results) <-chan results.Result {
+func (n NoopFulfillment) Execute(rs results.Results) <-chan results.Result {
 	log.Infof("NoopFulfillment()")
 	c := make(chan results.Result)
 	// execute the action in another go routine, run the conditions
 	// against the result
 	go func() {
-		r, err := n.Action.Execute(rs)
+		r, err := n.a.Execute(rs)
 		if err != nil {
 			c <- results.ErrorResult{
 				From: r,
@@ -29,7 +29,7 @@ func (n NoopFulillment) Execute(rs results.Results) <-chan results.Result {
 			close(c)
 		}
 
-		r = n.Conditions.Evaluate(r)
+		r = n.cs.Evaluate(r)
 		c <- r
 		close(c)
 	}()
@@ -37,14 +37,14 @@ func (n NoopFulillment) Execute(rs results.Results) <-chan results.Result {
 	return c
 }
 
-func (n NoopFulillment) Name() string {
+func (n NoopFulfillment) Name() string {
 	return n.name
 }
 
-func NewNoop(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (NoopFulillment, error) {
-	return NoopFulillment{
-		Action:     a,
-		Conditions: cs,
-		name:       name,
+func NewNoop(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error) {
+	return NoopFulfillment{
+		a:    a,
+		cs:   cs,
+		name: name,
 	}, nil
 }

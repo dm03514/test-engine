@@ -53,20 +53,11 @@ func (is intermediaryState) State(ar ActionRegistry, tcr TransConsRegistry) (Sta
 		return nil, err
 	}
 
-	/*
 	fr, err := fulfillment.NewRegistry()
 	if err != nil {
 		return nil, err
 	}
-	*/
-	// return fr.Load(is.Fulfillment, is.Name, action, conditions)
-
-	return fulfillment.NewNoop(
-		is.Fulfillment,
-		is.Name,
-		action,
-		conditions,
-	)
+	return fr.Load(is.Fulfillment, is.Name, action, conditions)
 }
 
 type intermediaryTest struct {

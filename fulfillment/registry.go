@@ -7,20 +7,15 @@ import (
 	"github.com/dm03514/test-engine/transcons"
 )
 
+type loaderFn func(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error)
+
 type Fulfiller interface {
 	Execute(rs results.Results) <-chan results.Result
 	Name() string
 }
 
-type load func(
-	f map[string]interface{},
-	name string,
-	a actions.Action,
-	cs transcons.Conditions,
-) (Fulfiller, error)
-
 type Registry struct {
-	m map[string]load
+	m map[string]loaderFn
 }
 
 func (r Registry) Load(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error) {
@@ -34,8 +29,8 @@ func (r Registry) Load(f map[string]interface{}, name string, a actions.Action, 
 
 func NewRegistry() (Registry, error) {
 	return Registry{
-		m: map[string]load{
-			// "noop": NewNoop,
+		m: map[string]loaderFn{
+			"noop.Noop": NewNoop,
 		},
 	}, nil
 }
