@@ -30,7 +30,8 @@ func (r Registry) Load(f map[string]interface{}, name string, a actions.Action, 
 func NewRegistry() (Registry, error) {
 	return Registry{
 		m: map[string]loaderFn{
-			"noop.Noop": NewNoop,
+			"noop.Noop":   NewNoop,
+			"poll.Poller": NewPoller,
 		},
 	}, nil
 }

@@ -4,7 +4,9 @@ states:
 
   - name: google_success
     fulfillment:
-      type: noop.Noop
+      type: poll.Poller
+      interval: 10ms
+      timeout: 1s
     action:
       type: http.Http
       url: http://google.com

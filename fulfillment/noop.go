@@ -27,6 +27,7 @@ func (n NoopFulfillment) Execute(rs results.Results) <-chan results.Result {
 				Err:  err,
 			}
 			close(c)
+			return
 		}
 
 		r = n.cs.Evaluate(r)
