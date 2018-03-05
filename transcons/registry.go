@@ -4,24 +4,24 @@ import (
 	"fmt"
 )
 
-type transConsLoader func(map[string]interface{}) (TransCon, error)
+type loaderFn func(map[string]interface{}) (TransCon, error)
 
-type TransConsRegistry struct {
-	m map[string]transConsLoader
+type Registry struct {
+	m map[string]loaderFn
 }
 
-func (tcr TransConsRegistry) Load(tcm map[string]interface{}) (TransCon, error) {
+func (r Registry) Load(tcm map[string]interface{}) (TransCon, error) {
 	t := tcm["type"].(string)
-	loaderFn, ok := tcr.m[t]
+	loaderFn, ok := r.m[t]
 	if !ok {
 		return nil, fmt.Errorf("Unable to parse transaction condition type type %s", t)
 	}
 	return loaderFn(tcm)
 }
 
-func NewTransConsRegistry() (TransConsRegistry, error) {
-	return TransConsRegistry{
-		m: map[string]transConsLoader{
+func NewRegistry() (Registry, error) {
+	return Registry{
+		m: map[string]loaderFn{
 			"assertions.IntEqual":    NewIntEqualFromMap,
 			"assertions.StringEqual": NewStringEqualFromMap,
 		},

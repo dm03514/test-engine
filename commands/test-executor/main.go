@@ -14,12 +14,12 @@ func main() {
 	var fp = flag.String("test", "", "test to execute")
 	flag.Parse()
 
-	ar, err := actions.NewActionRegistry()
+	ar, err := actions.NewRegistry()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	tcr, err := transcons.NewTransConsRegistry()
+	tcr, err := transcons.NewRegistry()
 	if err != nil {
 		log.Panic(err)
 	}

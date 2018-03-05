@@ -20,12 +20,12 @@ type HTTPExecutor interface {
 type NewServer func(loaders engine.Loaders, opts ...engine.HTTPOpt) (HTTPExecutor, error)
 
 func defaultServer(testsDir string) (HTTPExecutor, error) {
-	ar, err := actions.NewActionRegistry()
+	ar, err := actions.NewRegistry()
 	if err != nil {
 		return nil, err
 	}
 
-	tcr, err := transcons.NewTransConsRegistry()
+	tcr, err := transcons.NewRegistry()
 	if err != nil {
 		return nil, err
 	}
@@ -68,12 +68,12 @@ func prometheusServer(testsDir string) (HTTPExecutor, error) {
 		stateDuration,
 	)
 
-	ar, err := actions.NewActionRegistry()
+	ar, err := actions.NewRegistry()
 	if err != nil {
 		return nil, err
 	}
 
-	tcr, err := transcons.NewTransConsRegistry()
+	tcr, err := transcons.NewRegistry()
 	if err != nil {
 		return nil, err
 	}
