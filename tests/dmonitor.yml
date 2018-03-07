@@ -73,4 +73,11 @@ states:
       - type: assertions.IntEqual
         using_property: status_code
         to_equal: 200
+      - type: assertions.Subprocess
+        command_name: sh
+        args:
+          - "-c"
+          - "echo '$body' | jq -e '.results | length'"
+        using_property: body
+        to_equal: "1\n"
 

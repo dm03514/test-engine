@@ -6,15 +6,15 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"time"
 	"sync"
+	"time"
 )
 
 type dmCreated struct {
 	ID string
 
-	mu sync.Mutex
-	numPolledCreated int
+	mu                   sync.Mutex
+	numPolledCreated     int
 	currPollCreatedCount int
 }
 
@@ -56,7 +56,6 @@ func (d *dmCreated) analysisComplete(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-
 
 func main() {
 	var port = flag.String("port", ":9999", "Stub Server Port")

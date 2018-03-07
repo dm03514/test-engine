@@ -66,7 +66,7 @@ func (s Subprocess) Execute(rs results.Results) (results.Result, error) {
 	log.Infof("shell.Execute() command: `%s` args: `%s`", cn, args)
 	cmd := exec.Command(cn, args...)
 	out, err := cmd.CombinedOutput()
-	log.Infof("Execute() Subprocess out: %s, err: %s", out, err)
+	log.Infof("Execute() Subprocess out: %q, err: %s", out, err)
 	if err != nil {
 		return nil, err
 	}

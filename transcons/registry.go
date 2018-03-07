@@ -24,6 +24,7 @@ func NewRegistry() (Registry, error) {
 		m: map[string]loaderFn{
 			"assertions.IntEqual":    NewIntEqualFromMap,
 			"assertions.StringEqual": NewStringEqualFromMap,
+			"assertions.Subprocess":  NewSubprocessFromMap,
 		},
 	}, nil
 }

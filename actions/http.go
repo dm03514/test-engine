@@ -5,15 +5,15 @@ import (
 	"github.com/dm03514/test-engine/results"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"strings"
-	"io/ioutil"
 )
 
 type HttpResult struct {
 	*http.Response
 
-	err error
+	err  error
 	body []byte
 }
 
@@ -68,7 +68,7 @@ func (h Http) Execute(rs results.Results) (results.Result, error) {
 
 	return HttpResult{
 		Response: resp,
-		body: b,
+		body:     b,
 	}, nil
 }
 
