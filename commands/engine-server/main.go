@@ -125,12 +125,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// http.Handle("/metrics", promhttp.Handler())
-	// log.Fatal(http.ListenAndServe(":8080", nil))
-	/*
-		http.HandleFunc("/execute", s.Execute)
-		http.Handle("/metrics", promhttp.Handler())
-	*/
 	s.RegisterHandlers()
 	s.ListenAndServe()
 }
