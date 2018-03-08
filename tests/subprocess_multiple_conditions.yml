@@ -2,6 +2,8 @@
 name: subprocess_exit_code
 states:
  - name: echo_success
+   fulfillment:
+    type: noop.Noop
    action:
     type: shell.Subprocess
     command_name: echo

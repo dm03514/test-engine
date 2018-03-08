@@ -1,25 +1,27 @@
 package actions
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type actionLoader func(map[string]interface{}) (Action, error)
+type loaderFn func(map[string]interface{}) (Action, error)
 
-type ActionRegistry struct {
-	m map[string]actionLoader
+type Registry struct {
+	m map[string]loaderFn
 }
 
-func (ar ActionRegistry) Load(am map[string]interface{}) (Action, error) {
+func (r Registry) Load(am map[string]interface{}) (Action, error) {
 	t := am["type"].(string)
-	loaderFn, ok := ar.m[t]
+	loaderFn, ok := r.m[t]
 	if !ok {
 		return nil, fmt.Errorf("Unable to parse action type %s", t)
 	}
 	return loaderFn(am)
 }
 
-func NewActionRegistry() (ActionRegistry, error) {
-	return ActionRegistry{
-		m: map[string]actionLoader{
+func NewRegistry() (Registry, error) {
+	return Registry{
+		m: map[string]loaderFn{
 			"shell.Subprocess": NewSubprocessFromMap,
 			"http.Http":        NewHttpFromMap,
 		},

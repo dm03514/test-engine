@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"github.com/dm03514/test-engine/actions"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"path/filepath"
@@ -36,7 +37,7 @@ type Loader interface {
 
 type FileLoader struct {
 	Dir               string
-	actionRegistry    ActionRegistry
+	actionRegistry    actions.Registry
 	transConsRegistry TransConsRegistry
 	engineFactory     Factory
 }
@@ -58,7 +59,7 @@ func (fl FileLoader) Load(name string) (*Engine, error) {
 	return engine, err
 }
 
-func NewFileLoader(dir string, ar ActionRegistry, tcr TransConsRegistry, ef Factory) (FileLoader, error) {
+func NewFileLoader(dir string, ar actions.Registry, tcr TransConsRegistry, ef Factory) (FileLoader, error) {
 	return FileLoader{
 		Dir:               dir,
 		actionRegistry:    ar,

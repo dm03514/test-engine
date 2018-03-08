@@ -1,0 +1,83 @@
+---
+name: dmonitor
+states:
+
+  - name: delete_monitored
+    fulfillment:
+      type: noop.Noop
+    action:
+      type: http.Http
+      url: http://localhost:9999/dmonitor/delete
+      method: DELETE
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: status_code
+        to_equal: 200
+
+  - name: create_monitored
+    fulfillment:
+      type: noop.Noop
+    action:
+      type: http.Http
+      url: http://localhost:9999/dmonitor/create
+      method: POST
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: status_code
+        to_equal: 201
+
+  - name: created_id
+    fulfillment:
+      type: noop.Noop
+    action:
+      type: shell.Subprocess
+      command_name: sh
+      args:
+        - "-c"
+        - "echo '$CREATED_REST_RESPONSE' | jq .ID"
+      overrides:
+        - from_state: create_monitored
+          using_property: body
+          to_replace: $CREATED_REST_RESPONSE
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: returncode
+        to_equal: 0
+
+  - name: start_analysis
+    fulfillment:
+      type: noop.Noop
+    action:
+      type: shell.Subprocess
+      command_name: printf
+      args:
+        - "KICKING OFF ANALYSIS FOR $ID"
+      overrides:
+        - from_state: created_id
+          using_property: output
+          to_replace: $ID
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: returncode
+        to_equal: 0
+
+  - name: poll_analysis_complete
+    fulfillment:
+      type: poll.Poller
+      interval: 100ms
+      timeout: 1s
+    action:
+      type: http.Http
+      url: http://localhost:9999/dmonitor/analysis_complete
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: status_code
+        to_equal: 200
+      - type: assertions.Subprocess
+        command_name: sh
+        args:
+          - "-c"
+          - "echo '$body' | jq -e '.results | length'"
+        using_property: body
+        to_equal: "1\n"
+

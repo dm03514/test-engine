@@ -3,6 +3,10 @@ name: subprocess_exit_code
 states:
 
   - name: google_success
+    fulfillment:
+      type: poll.Poller
+      interval: 10ms
+      timeout: 1s
     action:
       type: http.Http
       url: http://google.com
@@ -12,6 +16,8 @@ states:
         to_equal: 200
 
   - name: echo_success
+    fulfillment:
+      type: noop.Noop
     action:
       type: shell.Subprocess
       command_name: echo
@@ -23,6 +29,8 @@ states:
         to_equal: 0
 
   - name: echo_success_2
+    fulfillment:
+      type: noop.Noop
     action:
       type: shell.Subprocess
       command_name: echo
