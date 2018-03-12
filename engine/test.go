@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dm03514/test-engine/results"
+	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"time"
 )
@@ -31,7 +32,11 @@ type Engine struct {
 
 func (e *Engine) ExecuteState() (State, <-chan results.Result) {
 	s := e.States[e.currentState]
-	log.Infof("ExecuteState() %+v", s)
+	log.WithFields(log.Fields{
+		"component":           "Engine.ExecuteState()",
+		"current_state_index": e.currentState,
+		"state":               s.Name(),
+	}).Info("executing")
 	c := s.Execute(*e.rs)
 	e.currentState++
 	return s, c
@@ -43,7 +48,11 @@ func (e *Engine) IsLastState() bool {
 }
 
 func (e Engine) Run(ctx context.Context) error {
-	log.Infof("Run()")
+	testId := uuid.NewV4()
+	log.WithFields(log.Fields{
+		"component":    "engine.Run()",
+		"execution_id": testId.String(),
+	}).Infof("running_engine")
 	testExecutionStart := time.Now()
 	e.rs = results.New()
 
@@ -61,7 +70,11 @@ engineloop:
 			case <-time.After(e.Timeout):
 				return fmt.Errorf("Timeout")
 			case r, more := <-resultChan:
-				log.Infof("Read From state %+v. (more = %+v)", r, more)
+				log.WithFields(log.Fields{
+					"component":    "engine.Run()",
+					"execution_id": testId.String(),
+					"more":         more,
+				}).Debug("<-resultChan")
 
 				if !more && e.IsLastState() {
 					break engineloop

@@ -81,10 +81,19 @@ func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry, f Factory) 
 		return nil, err
 	}
 
-	log.Infof("Parsing: %+v", it)
+	log.WithFields(log.Fields{
+		"component": "NewFromYaml()",
+		"test_name": it.Name,
+	}).Debug("parsing_test")
+
 	states := []State{}
 	for _, ps := range it.States {
-		log.Infof("Parsing State: %+v", ps)
+
+		log.WithFields(log.Fields{
+			"component": "NewFromYaml()",
+			"raw_state": ps,
+		}).Debug("parsing_state")
+
 		s, err := ps.State(ar, tcr)
 		if err != nil {
 			return nil, err

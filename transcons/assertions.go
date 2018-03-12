@@ -10,11 +10,17 @@ import (
 type IntEqual struct {
 	UsingProperty string `mapstructure:"using_property"`
 	ToEqual       int    `mapstructure:"to_equal"`
+	Type          string
 }
 
 func (ie IntEqual) Evaluate(r results.Result) results.Result {
 	v, err := r.ValueOfProperty(ie.UsingProperty)
-	log.Infof("IntEqual.Evaluate() result: %+v, against: %+v", r, v)
+	log.WithFields(log.Fields{
+		"component":      ie.Type,
+		"using_property": ie.UsingProperty,
+		"to_equal":       ie.ToEqual,
+		"against":        v.Int(),
+	}).Info("Evaluate()")
 	if err != nil {
 		return results.ErrorResult{
 			From: r,

@@ -13,6 +13,7 @@ type Poller struct {
 	a  actions.Action
 	cs transcons.Conditions
 
+	t    string
 	name string
 
 	Interval time.Duration
@@ -31,7 +32,11 @@ func (p Poller) Execute(rs results.Results) <-chan results.Result {
 	t := time.After(p.Timeout)
 
 	go func() {
-		log.Infof("Starting poller interval: %q, timeout: %q", p.Interval, p.Timeout)
+		log.WithFields(log.Fields{
+			"component": p.t,
+			"interval":  p.Interval.String(),
+			"timeout":   p.Timeout.String(),
+		}).Info("starting_poller")
 
 	forloop:
 		for {
@@ -43,7 +48,11 @@ func (p Poller) Execute(rs results.Results) <-chan results.Result {
 				break forloop
 
 			case <-i.C:
-				log.Infof("Polling! @ %q", p.Interval)
+				log.WithFields(log.Fields{
+					"component": p.t,
+					"interval":  p.Interval.String(),
+					"timeout":   p.Timeout.String(),
+				}).Debug("polling!")
 				r, err := p.a.Execute(rs)
 				if err != nil {
 					c <- results.ErrorResult{
@@ -87,5 +96,6 @@ func NewPoller(f map[string]interface{}, name string, a actions.Action, cs trans
 		name:     name,
 		Interval: i,
 		Timeout:  t,
+		t:        f["type"].(string),
 	}, nil
 }

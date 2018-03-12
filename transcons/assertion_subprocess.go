@@ -15,6 +15,7 @@ type Subprocess struct {
 
 	CommandName string `mapstructure:"command_name"`
 	Args        []string
+	Type        string
 }
 
 func (s Subprocess) substituteProperty(v results.Value) (string, []string, error) {
@@ -31,7 +32,9 @@ func (s Subprocess) substituteProperty(v results.Value) (string, []string, error
 
 func (s Subprocess) Evaluate(r results.Result) results.Result {
 	v, err := r.ValueOfProperty(s.UsingProperty)
-	log.Infof("Subprocess.Evaluate() result: %+v, against: %+v", r, v)
+	log.WithFields(log.Fields{
+		"component": s.Type,
+	}).Infof("Subprocess.Evaluate() result: %+v, against: %+v", r, v)
 	if err != nil {
 		return results.ErrorResult{
 			From: r,

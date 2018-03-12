@@ -10,7 +10,9 @@ type Conditions struct {
 }
 
 func (c Conditions) Evaluate(result results.Result) results.Result {
-	log.Infof("Evaluating Conditions: %+v", c.Tcs)
+	log.WithFields(log.Fields{
+		"component": "conditions",
+	}).Debug("Evaluate()")
 	// loop over each con, decorating each one, if one fails return
 	// Error Result
 	for _, condition := range c.Tcs {
