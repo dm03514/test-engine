@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/dm03514/test-engine/results"
 	"github.com/mitchellh/mapstructure"
@@ -33,6 +34,7 @@ type Subprocess struct {
 	CommandName string `mapstructure:"command_name"`
 	Args        []string
 	Overrides   []results.Override
+	Type        string
 }
 
 func (s Subprocess) applyOverrides(rs results.Results) (string, []string, error) {
@@ -59,22 +61,60 @@ func (s Subprocess) applyOverrides(rs results.Results) (string, []string, error)
 }
 
 func (s Subprocess) Execute(rs results.Results) (results.Result, error) {
+	var stdout, stderr bytes.Buffer
+
 	cn, args, err := s.applyOverrides(rs)
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("shell.Execute() command: `%s` args: `%s`", cn, args)
+	log.WithFields(log.Fields{
+		"component": s.Type,
+		"command":   cn,
+		"args":      args,
+	}).Info("Execute()")
+
 	cmd := exec.Command(cn, args...)
-	out, err := cmd.CombinedOutput()
-	log.Infof("Execute() Subprocess out: %q, err: %s", out, err)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err = cmd.Run()
+
+	out := stdout.String() + stderr.String()
+
+	log.WithFields(log.Fields{
+		"component": s.Type,
+		"command":   cn,
+		"args":      args,
+		"output":    out,
+		"error":     err,
+	}).Info("CombinedOutput()")
+
+	returncode, err := s.returnCode(err)
 	if err != nil {
 		return nil, err
 	}
 
 	return SubprocessResult{
-		Output:     out,
-		Returncode: 0,
+		Output:     []byte(out),
+		Returncode: returncode,
 	}, nil
+}
+
+func (s Subprocess) returnCode(err error) (int, error) {
+
+	if err == nil {
+		return 0, nil
+	}
+
+	// TODO not sure the best way to handle this
+	// It looks like there are non-portable ways to handle this
+	// https://stackoverflow.com/questions/10385551/get-exit-code-go
+	// need to check if the error message is cross-platform safe
+	switch err.Error() {
+	case "exit status 1":
+		return 1, nil
+	}
+
+	return -1, err
 }
 
 func NewSubprocessFromMap(m map[string]interface{}) (Action, error) {

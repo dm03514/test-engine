@@ -38,6 +38,7 @@ type Http struct {
 	Headers   map[string]string
 	Overrides []results.Override
 	Body      string
+	Type      string
 }
 
 func (h Http) Execute(rs results.Results) (results.Result, error) {
@@ -58,8 +59,13 @@ func (h Http) Execute(rs results.Results) (results.Result, error) {
 	}
 	defer resp.Body.Close()
 
-	log.Infof("http.Execute() requested url: %q method: %q, received: %s",
-		h.Url, h.Method, resp.StatusCode)
+	log.WithFields(log.Fields{
+		"component":   h.Type,
+		"call":        "Execute()",
+		"url":         h.Url,
+		"method":      h.Method,
+		"status_code": resp.StatusCode,
+	}).Info("requested_url")
 
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

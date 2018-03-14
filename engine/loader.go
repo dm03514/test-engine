@@ -45,7 +45,13 @@ type FileLoader struct {
 // Load the test from the Dir matching the name
 func (fl FileLoader) Load(name string) (*Engine, error) {
 	p := filepath.Join(fl.Dir, name)
-	log.Infof("engine.Load(%q) from %q", name, p)
+
+	log.WithFields(log.Fields{
+		"component": "Fileloader.Load()",
+		"filename":  name,
+		"path":      p,
+	}).Info("loading_test")
+
 	content, err := ioutil.ReadFile(p)
 	if err != nil {
 		return nil, err

@@ -37,12 +37,12 @@ func main() {
 		log.Panic(err)
 	}
 
-	log.Infof("%+v\n", engine)
-
 	err = engine.Run(context.Background())
 	if err != nil {
 		log.Panic(err)
 	}
 
-	log.Infof("SUCCESS")
+	log.WithFields(log.Fields{
+		"component": "test-executor.main",
+	}).Info("SUCCESS")
 }
