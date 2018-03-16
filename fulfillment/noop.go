@@ -26,7 +26,7 @@ func (n NoopFulfillment) Execute(ctx context.Context, rs results.Results) <-chan
 			"execution_id": ctx.Value(ids.Execution("execution_id")),
 		}).Info("Execute()")
 
-		r, err := n.a.Execute(rs)
+		r, err := n.a.Execute(ctx, rs)
 		if err != nil {
 			c <- results.ErrorResult{
 				From: r,

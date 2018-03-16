@@ -52,12 +52,12 @@ func (p Poller) Execute(ctx context.Context, rs results.Results) <-chan results.
 
 			case <-i.C:
 				log.WithFields(log.Fields{
-					"component": p.t,
-					"interval":  p.Interval.String(),
-					"timeout":   p.Timeout.String(),
+					"component":    p.t,
+					"interval":     p.Interval.String(),
+					"timeout":      p.Timeout.String(),
 					"execution_id": ctx.Value(ids.Execution("execution_id")),
 				}).Debug("polling!")
-				r, err := p.a.Execute(rs)
+				r, err := p.a.Execute(ctx, rs)
 				if err != nil {
 					c <- results.ErrorResult{
 						From: r,
