@@ -3,6 +3,7 @@ package engine
 import (
 	"context"
 	"fmt"
+	"github.com/dm03514/test-engine/ids"
 	"github.com/dm03514/test-engine/results"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
@@ -10,7 +11,7 @@ import (
 )
 
 type State interface {
-	Execute(results.Results) <-chan results.Result
+	Execute(context.Context, results.Results) <-chan results.Result
 	Name() string
 }
 
@@ -30,14 +31,15 @@ type Engine struct {
 	recordTestDuration  TestDurationRecorder
 }
 
-func (e *Engine) ExecuteState() (State, <-chan results.Result) {
+func (e *Engine) ExecuteState(ctx context.Context) (State, <-chan results.Result) {
 	s := e.States[e.currentState]
 	log.WithFields(log.Fields{
 		"component":           "Engine.ExecuteState()",
 		"current_state_index": e.currentState,
 		"state":               s.Name(),
+		"execution_id":        ctx.Value(ids.Execution("execution_id")),
 	}).Info("executing")
-	c := s.Execute(*e.rs)
+	c := s.Execute(ctx, *e.rs)
 	e.currentState++
 	return s, c
 }
@@ -52,15 +54,20 @@ func (e Engine) Run(ctx context.Context) error {
 	log.WithFields(log.Fields{
 		"component":    "engine.Run()",
 		"execution_id": testId.String(),
-	}).Infof("running_engine")
+	}).Info("running_engine")
 	testExecutionStart := time.Now()
 	e.rs = results.New()
+
+	ctx, cancel := context.WithTimeout(ctx, e.Timeout)
+	defer cancel()
+
+	ctx = context.WithValue(ctx, ids.Execution("execution_id"), testId)
 
 engineloop:
 	for {
 
 		stateExecutionStart := time.Now()
-		s, resultChan := e.ExecuteState()
+		s, resultChan := e.ExecuteState(ctx)
 
 	stateexecutionloop:
 		for {

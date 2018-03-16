@@ -18,7 +18,7 @@ type dmCreated struct {
 	currPollCreatedCount int
 }
 
-func (d dmCreated) delete(w http.ResponseWriter, r *http.Request) {
+func (d *dmCreated) delete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -27,7 +27,7 @@ func (d dmCreated) delete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Success")
 }
 
-func (d dmCreated) create(w http.ResponseWriter, r *http.Request) {
+func (d *dmCreated) create(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

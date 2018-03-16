@@ -46,12 +46,18 @@ func NewIntEqualFromMap(m map[string]interface{}) (TransCon, error) {
 type StringEqual struct {
 	UsingProperty string `mapstructure:"using_property"`
 	ToEqual       string `mapstructure:"to_equal"`
+
+	Type string
 }
 
 func (se StringEqual) Evaluate(r results.Result) results.Result {
 	v, err := r.ValueOfProperty(se.UsingProperty)
-	log.Infof("StringEqual.Evaluate(%s) result: %+v, against: %+v.  Error: %+v",
-		se.UsingProperty, r, v, err)
+	log.WithFields(log.Fields{
+		"component":      se.Type,
+		"using_property": se.UsingProperty,
+		"to_equal":       se.ToEqual,
+		"against":        v.String(),
+	}).Info("Evaluate()")
 	if err != nil {
 		return results.ErrorResult{
 			From: r,

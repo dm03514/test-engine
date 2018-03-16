@@ -1,6 +1,7 @@
 package fulfillment
 
 import (
+	"context"
 	"fmt"
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/results"
@@ -10,7 +11,7 @@ import (
 type loaderFn func(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error)
 
 type Fulfiller interface {
-	Execute(rs results.Results) <-chan results.Result
+	Execute(ctx context.Context, rs results.Results) <-chan results.Result
 	Name() string
 }
 

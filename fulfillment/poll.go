@@ -1,8 +1,10 @@
 package fulfillment
 
 import (
+	"context"
 	"fmt"
 	"github.com/dm03514/test-engine/actions"
+	"github.com/dm03514/test-engine/ids"
 	"github.com/dm03514/test-engine/results"
 	"github.com/dm03514/test-engine/transcons"
 	log "github.com/sirupsen/logrus"
@@ -25,7 +27,7 @@ func (p Poller) Name() string {
 }
 
 // Naively has a timeout, needs context, interval can execute longer than timeout
-func (p Poller) Execute(rs results.Results) <-chan results.Result {
+func (p Poller) Execute(ctx context.Context, rs results.Results) <-chan results.Result {
 	c := make(chan results.Result)
 
 	i := time.NewTicker(p.Interval)
@@ -33,9 +35,10 @@ func (p Poller) Execute(rs results.Results) <-chan results.Result {
 
 	go func() {
 		log.WithFields(log.Fields{
-			"component": p.t,
-			"interval":  p.Interval.String(),
-			"timeout":   p.Timeout.String(),
+			"component":    p.t,
+			"interval":     p.Interval.String(),
+			"timeout":      p.Timeout.String(),
+			"execution_id": ctx.Value(ids.Execution("execution_id")),
 		}).Info("starting_poller")
 
 	forloop:
@@ -52,6 +55,7 @@ func (p Poller) Execute(rs results.Results) <-chan results.Result {
 					"component": p.t,
 					"interval":  p.Interval.String(),
 					"timeout":   p.Timeout.String(),
+					"execution_id": ctx.Value(ids.Execution("execution_id")),
 				}).Debug("polling!")
 				r, err := p.a.Execute(rs)
 				if err != nil {

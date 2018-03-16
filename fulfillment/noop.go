@@ -1,7 +1,9 @@
 package fulfillment
 
 import (
+	"context"
 	"github.com/dm03514/test-engine/actions"
+	"github.com/dm03514/test-engine/ids"
 	"github.com/dm03514/test-engine/results"
 	"github.com/dm03514/test-engine/transcons"
 	log "github.com/sirupsen/logrus"
@@ -14,12 +16,16 @@ type NoopFulfillment struct {
 	name string
 }
 
-func (n NoopFulfillment) Execute(rs results.Results) <-chan results.Result {
-	log.Infof("NoopFulfillment()")
+func (n NoopFulfillment) Execute(ctx context.Context, rs results.Results) <-chan results.Result {
 	c := make(chan results.Result)
 	// execute the action in another go routine, run the conditions
 	// against the result
 	go func() {
+		log.WithFields(log.Fields{
+			"component":    "NoopFulfillment",
+			"execution_id": ctx.Value(ids.Execution("execution_id")),
+		}).Info("Execute()")
+
 		r, err := n.a.Execute(rs)
 		if err != nil {
 			c <- results.ErrorResult{
