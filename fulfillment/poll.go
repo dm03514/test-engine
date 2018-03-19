@@ -66,7 +66,7 @@ func (p Poller) Execute(ctx context.Context, rs results.Results) <-chan results.
 					break forloop
 				}
 
-				r = p.cs.Evaluate(r)
+				r = p.cs.Evaluate(ctx, r)
 
 				// if there is NO error return
 				// if not continue polling until success or timeout

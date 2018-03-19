@@ -36,7 +36,7 @@ func (n NoopFulfillment) Execute(ctx context.Context, rs results.Results) <-chan
 			return
 		}
 
-		r = n.cs.Evaluate(r)
+		r = n.cs.Evaluate(ctx, r)
 		c <- r
 		close(c)
 	}()
