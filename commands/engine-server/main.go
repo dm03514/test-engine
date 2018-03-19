@@ -96,8 +96,6 @@ func prometheusServer(testsDir string) (HTTPExecutor, error) {
 			loader,
 		),
 	)
-
-	return nil, nil
 }
 
 func main() {

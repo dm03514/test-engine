@@ -1,7 +1,9 @@
 package transcons
 
 import (
+	"context"
 	"fmt"
+	"github.com/dm03514/test-engine/ids"
 	"github.com/dm03514/test-engine/results"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
@@ -30,11 +32,15 @@ func (s Subprocess) substituteProperty(v results.Value) (string, []string, error
 	return command, args, nil
 }
 
-func (s Subprocess) Evaluate(r results.Result) results.Result {
+func (s Subprocess) Evaluate(ctx context.Context, r results.Result) results.Result {
 	v, err := r.ValueOfProperty(s.UsingProperty)
 	log.WithFields(log.Fields{
-		"component": s.Type,
-	}).Infof("Subprocess.Evaluate() result: %+v, against: %+v", r, v)
+		"component":      s.Type,
+		"execution_id":   ctx.Value(ids.Execution("execution_id")),
+		"using_property": s.UsingProperty,
+		"to_equal":       s.ToEqual,
+		"against":        v.String(),
+	}).Info("Evaluate() result: %+v, against: %+v", r, v)
 	if err != nil {
 		return results.ErrorResult{
 			From: r,

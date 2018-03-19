@@ -2,7 +2,9 @@ package actions
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"github.com/dm03514/test-engine/ids"
 	"github.com/dm03514/test-engine/results"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
@@ -60,7 +62,7 @@ func (s Subprocess) applyOverrides(rs results.Results) (string, []string, error)
 	return cn, s.Args, nil
 }
 
-func (s Subprocess) Execute(rs results.Results) (results.Result, error) {
+func (s Subprocess) Execute(ctx context.Context, rs results.Results) (results.Result, error) {
 	var stdout, stderr bytes.Buffer
 
 	cn, args, err := s.applyOverrides(rs)
@@ -68,9 +70,10 @@ func (s Subprocess) Execute(rs results.Results) (results.Result, error) {
 		return nil, err
 	}
 	log.WithFields(log.Fields{
-		"component": s.Type,
-		"command":   cn,
-		"args":      args,
+		"component":    s.Type,
+		"command":      cn,
+		"args":         args,
+		"execution_id": ctx.Value(ids.Execution("execution_id")),
 	}).Info("Execute()")
 
 	cmd := exec.Command(cn, args...)
@@ -81,11 +84,12 @@ func (s Subprocess) Execute(rs results.Results) (results.Result, error) {
 	out := stdout.String() + stderr.String()
 
 	log.WithFields(log.Fields{
-		"component": s.Type,
-		"command":   cn,
-		"args":      args,
-		"output":    out,
-		"error":     err,
+		"component":    s.Type,
+		"command":      cn,
+		"args":         args,
+		"output":       out,
+		"error":        err,
+		"execution_id": ctx.Value(ids.Execution("execution_id")),
 	}).Info("CombinedOutput()")
 
 	returncode, err := s.returnCode(err)

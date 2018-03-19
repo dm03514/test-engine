@@ -1,7 +1,9 @@
 package actions
 
 import (
+	"context"
 	"fmt"
+	"github.com/dm03514/test-engine/ids"
 	"github.com/dm03514/test-engine/results"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
@@ -41,7 +43,7 @@ type Http struct {
 	Type      string
 }
 
-func (h Http) Execute(rs results.Results) (results.Result, error) {
+func (h Http) Execute(ctx context.Context, rs results.Results) (results.Result, error) {
 	req, err := http.NewRequest(h.Method, h.Url, strings.NewReader(h.Body))
 	if err != nil {
 		return nil, err
@@ -60,11 +62,12 @@ func (h Http) Execute(rs results.Results) (results.Result, error) {
 	defer resp.Body.Close()
 
 	log.WithFields(log.Fields{
-		"component":   h.Type,
-		"call":        "Execute()",
-		"url":         h.Url,
-		"method":      h.Method,
-		"status_code": resp.StatusCode,
+		"component":    h.Type,
+		"call":         "Execute()",
+		"url":          h.Url,
+		"method":       h.Method,
+		"status_code":  resp.StatusCode,
+		"execution_id": ctx.Value(ids.Execution("execution_id")),
 	}).Info("requested_url")
 
 	b, err := ioutil.ReadAll(resp.Body)

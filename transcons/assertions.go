@@ -1,7 +1,9 @@
 package transcons
 
 import (
+	"context"
 	"fmt"
+	"github.com/dm03514/test-engine/ids"
 	"github.com/dm03514/test-engine/results"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
@@ -13,13 +15,14 @@ type IntEqual struct {
 	Type          string
 }
 
-func (ie IntEqual) Evaluate(r results.Result) results.Result {
+func (ie IntEqual) Evaluate(ctx context.Context, r results.Result) results.Result {
 	v, err := r.ValueOfProperty(ie.UsingProperty)
 	log.WithFields(log.Fields{
 		"component":      ie.Type,
 		"using_property": ie.UsingProperty,
 		"to_equal":       ie.ToEqual,
 		"against":        v.Int(),
+		"execution_id":   ctx.Value(ids.Execution("execution_id")),
 	}).Info("Evaluate()")
 	if err != nil {
 		return results.ErrorResult{
@@ -46,12 +49,19 @@ func NewIntEqualFromMap(m map[string]interface{}) (TransCon, error) {
 type StringEqual struct {
 	UsingProperty string `mapstructure:"using_property"`
 	ToEqual       string `mapstructure:"to_equal"`
+
+	Type string
 }
 
-func (se StringEqual) Evaluate(r results.Result) results.Result {
+func (se StringEqual) Evaluate(ctx context.Context, r results.Result) results.Result {
 	v, err := r.ValueOfProperty(se.UsingProperty)
-	log.Infof("StringEqual.Evaluate(%s) result: %+v, against: %+v.  Error: %+v",
-		se.UsingProperty, r, v, err)
+	log.WithFields(log.Fields{
+		"component":      se.Type,
+		"using_property": se.UsingProperty,
+		"to_equal":       se.ToEqual,
+		"against":        v.String(),
+		"execution_id":   ctx.Value(ids.Execution("execution_id")),
+	}).Info("Evaluate()")
 	if err != nil {
 		return results.ErrorResult{
 			From: r,

@@ -1,6 +1,7 @@
 package transcons
 
 import (
+	"context"
 	"github.com/dm03514/test-engine/actions"
 	"testing"
 )
@@ -18,7 +19,7 @@ func TestConditions_Evaluate_TwoConditions(t *testing.T) {
 			},
 		},
 	}
-	r := cs.Evaluate(actions.SubprocessResult{
+	r := cs.Evaluate(context.Background(), actions.SubprocessResult{
 		Output:     []byte("hello!"),
 		Returncode: 0,
 	})

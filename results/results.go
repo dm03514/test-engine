@@ -78,8 +78,13 @@ func (o Override) Apply(rs Results, src string) (string, error) {
 		return "", err
 	}
 	replaced := strings.Replace(src, o.ToReplace, v.String(), REPLACE_ALL)
-	log.Infof("Override.Apply() -> replacing %q with %q in %q -> %q",
-		o.ToReplace, v.String(), src, replaced)
+	log.WithFields(log.Fields{
+		"component": "results.Override",
+		"replacing": o.ToReplace,
+		"with":      v.String(),
+		"in":        src,
+		"result":    replaced,
+	}).Info("apply()")
 	return replaced, nil
 }
 
@@ -88,13 +93,21 @@ type Results struct {
 }
 
 func (rs *Results) Add(r NamedResult) {
-	log.Infof("Results.Add(%s, %+v)", r.Name, r)
+	log.WithFields(log.Fields{
+		"component": "results",
+		"name":      r.Name,
+		"adding":    r.Name,
+	}).Info("Add()")
 	rs.byStateName[r.Name] = r
 }
 
 func (rs *Results) Get(k string) (Result, error) {
 	r, ok := rs.byStateName[k]
-	log.Infof("Results.Get(%s) -> %+v", k, r)
+	log.WithFields(log.Fields{
+		"component": "results",
+		"name":      k,
+	}).Info("Get()")
+
 	if !ok {
 		return nil, fmt.Errorf("Unable to find key: %s in %+v", k, rs)
 	}
