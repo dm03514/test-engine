@@ -2,10 +2,12 @@ package engine
 
 import (
 	"github.com/dm03514/test-engine/actions"
+	"github.com/dm03514/test-engine/engine/templateprocessors"
 	"github.com/dm03514/test-engine/fulfillment"
 	"github.com/dm03514/test-engine/transcons"
 	"github.com/go-yaml/yaml"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"time"
 )
 
@@ -76,7 +78,13 @@ func (it intermediaryTest) TimeoutDuration() time.Duration {
 
 func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry, f Factory) (*Engine, error) {
 	it := intermediaryTest{}
-	err := yaml.Unmarshal(b, &it)
+	ep := templateprocessors.NewEnv(os.LookupEnv)
+
+	err := yaml.Unmarshal(
+		ep.Process(
+			b,
+		), &it,
+	)
 	if err != nil {
 		return nil, err
 	}
