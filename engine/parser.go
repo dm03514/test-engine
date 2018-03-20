@@ -6,6 +6,7 @@ import (
 	"github.com/dm03514/test-engine/fulfillment"
 	"github.com/dm03514/test-engine/transcons"
 	"github.com/go-yaml/yaml"
+	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"time"
@@ -79,10 +80,13 @@ func (it intermediaryTest) TimeoutDuration() time.Duration {
 func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry, f Factory) (*Engine, error) {
 	it := intermediaryTest{}
 	ep := templateprocessors.NewEnv(os.LookupEnv)
+	uuidProcessor := templateprocessors.NewUUID(uuid.NewV4)
 
 	err := yaml.Unmarshal(
 		ep.Process(
-			b,
+			uuidProcessor.Process(
+				b,
+			),
 		), &it,
 	)
 	if err != nil {
