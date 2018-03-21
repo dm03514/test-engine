@@ -427,7 +427,6 @@ our test.
     If you execute this task, you'll see it poll for a little until the results are 
     returned, and `SUCCESS` is reached:
     
-        ```
         {
           "against": 204,
           "component": "assertions.IntEqual",
@@ -438,6 +437,7 @@ our test.
           "to_equal": 200,
           "using_property": "status_code"
         }
-        ```    
+       
 - YAY! WOOT we now have a declaritive language agnostic test!!!!!!!!!!!! WHat do we do 
-now with it??
+now with it?? [Check out how to expose the test through an HTTP server, which
+allows for metric reporting on your test.](PROMETHEUS_HTTP.md)
