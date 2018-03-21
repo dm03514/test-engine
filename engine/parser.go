@@ -103,7 +103,7 @@ func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry, f Factory) 
 
 		log.WithFields(log.Fields{
 			"component": "NewFromYaml()",
-			"raw_state": ps,
+			"raw_state": ps.Name,
 		}).Debug("parsing_state")
 
 		s, err := ps.State(ar, tcr)

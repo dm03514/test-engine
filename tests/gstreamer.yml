@@ -1,0 +1,93 @@
+---
+name: gstreamer
+states:
+  - name: create_fake_account
+    fulfillment:
+      type: noop.Noop
+    action:
+      type: http.Http
+      url: http://localhost:9999/gstreamer/account/create
+      method: POST
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: status_code
+        to_equal: 201
+
+  - name: parse_account_id
+    fulfillment:
+      type: noop.Noop
+    action:
+      type: shell.Subprocess
+      command_name: sh
+      args:
+        - "-c"
+        - "printf '$ACCOUNT_CREATE_REST_RESPONSE' | jq -r .AccountID | tr -d '\n'"
+      overrides:
+        - from_state: create_fake_account
+          using_property: body
+          to_replace: $ACCOUNT_CREATE_REST_RESPONSE
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: returncode
+        to_equal: 0
+
+  - name: build_sqs_message
+    fulfillment:
+      type: noop.Noop
+    action:
+      type: shell.Subprocess
+      command_name: sh
+      args:
+        - "-c"
+        - >
+          printf '{"account_id":"$ACCOUNT_ID","test":"$UUID_test_msg_identifier"}'
+      overrides:
+        - from_state: parse_account_id
+          using_property: output
+          to_replace: $ACCOUNT_ID
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: returncode
+        to_equal: 0
+
+  - name: send_sqs_message
+    fulfillment:
+      type: noop.Noop
+    action:
+      type: shell.Subprocess
+      command_name: sh
+      args:
+        - "-c"
+        - >
+          aws --endpoint-url http://localhost:9324 sqs send-message \
+              --queue-url http://localhost:9324/queue/test_queue \
+              --message-attributes '{ "Content-Transfer-Encoding":{ "DataType":"String","StringValue":"base64" }}' \
+              --message-body "`echo '$BASE64_MESSAGE_BODY' | base64 | tr -d '\n'`"
+      overrides:
+        - from_state: build_sqs_message
+          using_property: output
+          to_replace: $BASE64_MESSAGE_BODY
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: returncode
+        to_equal: 0
+
+  - name: poll_analysis_complete
+    fulfillment:
+      type: poll.Poller
+      interval: 100ms
+      timeout: 5m
+    action:
+      type: http.Http
+      url: http://localhost:9999/gstreamer/analysis_complete
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: status_code
+        to_equal: 200
+      - type: assertions.Subprocess
+        command_name: sh
+        args:
+          - "-c"
+          - "echo '$body' | jq -e '.results | length'"
+        using_property: body
+        to_equal: "1\n"

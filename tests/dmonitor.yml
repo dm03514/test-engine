@@ -1,7 +1,6 @@
 ---
 name: dmonitor
 states:
-
   - name: delete_monitored
     fulfillment:
       type: noop.Noop
