@@ -17,4 +17,7 @@ test-functional:
 fmt:
 	go fmt ./...
 
-.PHONY: test-unit test-functional
+lint:
+	golint $(PKGS)
+
+.PHONY: test-unit test-functional fmt lint

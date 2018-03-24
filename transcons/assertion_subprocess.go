@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// Subprocess assertion
 type Subprocess struct {
 	UsingProperty string `mapstructure:"using_property"`
 	ToEqual       string `mapstructure:"to_equal"`
@@ -21,17 +22,18 @@ type Subprocess struct {
 }
 
 func (s Subprocess) substituteProperty(v results.Value) (string, []string, error) {
-	REPLACE_ALL := -1
+	replaceAll := -1
 	toReplace := fmt.Sprintf("$%s", s.UsingProperty)
-	command := strings.Replace(s.CommandName, toReplace, v.String(), REPLACE_ALL)
+	command := strings.Replace(s.CommandName, toReplace, v.String(), replaceAll)
 
 	args := make([]string, len(s.Args))
 	for i, arg := range s.Args {
-		args[i] = strings.Replace(arg, toReplace, v.String(), REPLACE_ALL)
+		args[i] = strings.Replace(arg, toReplace, v.String(), replaceAll)
 	}
 	return command, args, nil
 }
 
+// Evaluate 's a result using a shell subprocess
 func (s Subprocess) Evaluate(ctx context.Context, r results.Result) results.Result {
 	v, err := r.ValueOfProperty(s.UsingProperty)
 	log.WithFields(log.Fields{
@@ -78,6 +80,7 @@ func (s Subprocess) Evaluate(ctx context.Context, r results.Result) results.Resu
 
 }
 
+// NewSubprocessFromMap initializes a subprocess from a generica map
 func NewSubprocessFromMap(m map[string]interface{}) (TransCon, error) {
 	var s Subprocess
 	err := mapstructure.Decode(m, &s)
