@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// NoopFulfillment stores actions and conditions
 type NoopFulfillment struct {
 	a  actions.Action
 	cs transcons.Conditions
@@ -16,6 +17,7 @@ type NoopFulfillment struct {
 	name string
 }
 
+// Execute calls an action and sends its result
 func (n NoopFulfillment) Execute(ctx context.Context, rs results.Results) <-chan results.Result {
 	c := make(chan results.Result)
 	// execute the action in another go routine, run the conditions
@@ -44,10 +46,12 @@ func (n NoopFulfillment) Execute(ctx context.Context, rs results.Results) <-chan
 	return c
 }
 
+// Name is a string identifier for this fulfiller
 func (n NoopFulfillment) Name() string {
 	return n.name
 }
 
+// NewNoop initializes noop fulfiller
 func NewNoop(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error) {
 	return NoopFulfillment{
 		a:    a,

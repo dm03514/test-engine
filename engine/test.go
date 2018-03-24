@@ -10,17 +10,20 @@ import (
 	"time"
 )
 
+// State is what this engine can execute!
 type State interface {
 	Execute(context.Context, results.Results) <-chan results.Result
 	Name() string
 }
 
+// Test contains all states and global config and metadata
 type Test struct {
 	Name    string
 	States  []State
 	Timeout time.Duration
 }
 
+// Engine decorates a test and contains execution metadata
 type Engine struct {
 	Test
 
@@ -31,6 +34,7 @@ type Engine struct {
 	recordTestDuration  TestDurationRecorder
 }
 
+// ExecuteState kicks off a state and keeps track of state execution states
 func (e *Engine) ExecuteState(ctx context.Context) (State, <-chan results.Result) {
 	s := e.States[e.currentState]
 	log.WithFields(log.Fields{
@@ -44,16 +48,18 @@ func (e *Engine) ExecuteState(ctx context.Context) (State, <-chan results.Result
 	return s, c
 }
 
+// IsLastState checks if there are anymore states
 func (e *Engine) IsLastState() bool {
 	log.Infof("IsLastState(), currState %d : len(states): %d", e.currentState, len(e.States))
 	return e.currentState == len(e.States)
 }
 
+// Run kicks off a test execution
 func (e Engine) Run(ctx context.Context) error {
-	testId := uuid.NewV4()
+	testID := uuid.NewV4()
 	log.WithFields(log.Fields{
 		"component":    "engine.Run()",
-		"execution_id": testId.String(),
+		"execution_id": testID.String(),
 	}).Info("running_engine")
 	testExecutionStart := time.Now()
 	e.rs = results.New()
@@ -61,7 +67,7 @@ func (e Engine) Run(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, e.Timeout)
 	defer cancel()
 
-	ctx = context.WithValue(ctx, ids.Execution("execution_id"), testId)
+	ctx = context.WithValue(ctx, ids.Execution("execution_id"), testID)
 
 engineloop:
 	for {
@@ -73,17 +79,23 @@ engineloop:
 		for {
 			select {
 			case <-ctx.Done():
-				return fmt.Errorf("Context Done().")
+				return fmt.Errorf("context done()")
 			case <-time.After(e.Timeout):
-				return fmt.Errorf("Timeout")
+				return fmt.Errorf("timeout")
 			case r, more := <-resultChan:
 				log.WithFields(log.Fields{
 					"component":    "engine.Run()",
-					"execution_id": testId.String(),
+					"execution_id": testID.String(),
 					"more":         more,
 				}).Debug("<-resultChan")
 
 				if !more && e.IsLastState() {
+					e.recordStateDuration(
+						s.Name(),
+						e.Test.Name,
+						time.Now().Sub(stateExecutionStart),
+						nil,
+					)
 					break engineloop
 				}
 

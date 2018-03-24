@@ -6,13 +6,16 @@ import (
 	"regexp"
 )
 
+// LookupEnv fetches a key from the environment
 type LookupEnv func(key string) (string, bool)
 
+// Env contains regular expression to look for and function to pull variables from env
 type Env struct {
 	re        *regexp.Regexp
 	lookupEnv LookupEnv
 }
 
+// Process replaces templated variables with variables from the environment
 // TODO not sure about the type conversions, favoring strings for ease of logging
 // but probably an easier way anyhow
 func (e Env) Process(b []byte) []byte {
@@ -41,6 +44,7 @@ func (e Env) Process(b []byte) []byte {
 	return b
 }
 
+// NewEnv creates an env parser
 func NewEnv(lookupEnv LookupEnv) Env {
 	return Env{
 		re:        regexp.MustCompile(`\$ENV\_(?P<variablename>\w+)`),

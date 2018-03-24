@@ -8,8 +8,9 @@ import (
 	"path/filepath"
 )
 
+// Loaders collection of loaders
 type Loaders struct {
-	ls []Loader
+	ls []loader
 }
 
 // Load by iterating through all loaders, returning
@@ -27,18 +28,20 @@ func (l Loaders) Load(name string) (*Engine, error) {
 	return nil, fmt.Errorf("No engine found matching %q", name)
 }
 
-func NewLoaders(ls ...Loader) Loaders {
+// NewLoaders creates a new collection of loaders
+func NewLoaders(ls ...loader) Loaders {
 	return Loaders{ls: ls}
 }
 
-type Loader interface {
+type loader interface {
 	Load(name string) (*Engine, error)
 }
 
+// FileLoader contains information on how /where to load files from
 type FileLoader struct {
 	Dir               string
 	actionRegistry    actions.Registry
-	transConsRegistry TransConsRegistry
+	transConsRegistry transConsRegistry
 	engineFactory     Factory
 }
 
@@ -65,7 +68,8 @@ func (fl FileLoader) Load(name string) (*Engine, error) {
 	return engine, err
 }
 
-func NewFileLoader(dir string, ar actions.Registry, tcr TransConsRegistry, ef Factory) (FileLoader, error) {
+// NewFileLoader creates a file loader
+func NewFileLoader(dir string, ar actions.Registry, tcr transConsRegistry, ef Factory) (FileLoader, error) {
 	return FileLoader{
 		Dir:               dir,
 		actionRegistry:    ar,
@@ -74,10 +78,12 @@ func NewFileLoader(dir string, ar actions.Registry, tcr TransConsRegistry, ef Fa
 	}, nil
 }
 
+// MemoryLoader stores engines by identifier
 type MemoryLoader struct {
 	m map[string]*Engine
 }
 
+// Load an engine based on its name
 func (ml *MemoryLoader) Load(name string) (*Engine, error) {
 	e, ok := ml.m[name]
 	if !ok {

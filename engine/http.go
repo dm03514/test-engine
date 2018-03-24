@@ -9,15 +9,15 @@ import (
 	"time"
 )
 
-type HTTPOpt string
-
-type HttpExecutor struct {
+// HTTPExecutor can load tests and execute them through REST interface!
+type HTTPExecutor struct {
 	Addr string
 
 	Loaders Loaders
 }
 
-func (he HttpExecutor) Execute(w http.ResponseWriter, r *http.Request) {
+// Execute a test
+func (he HTTPExecutor) Execute(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -44,7 +44,8 @@ func (he HttpExecutor) Execute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Test: %q started", html.EscapeString(testName))
 }
 
-func (he HttpExecutor) ListenAndServe() {
+// ListenAndServe tests through http REST interface
+func (he HTTPExecutor) ListenAndServe() {
 	s := &http.Server{
 		Addr:         he.Addr,
 		ReadTimeout:  10 * time.Second,
@@ -54,12 +55,14 @@ func (he HttpExecutor) ListenAndServe() {
 	log.Fatal(s.ListenAndServe())
 }
 
-func (he HttpExecutor) RegisterHandlers() {
+// RegisterHandlers registers all routes
+func (he HTTPExecutor) RegisterHandlers() {
 	http.HandleFunc("/execute", he.Execute)
 }
 
-func NewHTTPExecutor(loaders Loaders, opts ...HTTPOpt) (HttpExecutor, error) {
-	return HttpExecutor{
+// NewHTTPExecutor initializes and creates http executor server
+func NewHTTPExecutor(loaders Loaders) (HTTPExecutor, error) {
+	return HTTPExecutor{
 		Addr:    ":8080",
 		Loaders: loaders,
 	}, nil

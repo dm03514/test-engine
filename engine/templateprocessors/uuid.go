@@ -7,6 +7,7 @@ import (
 	"regexp"
 )
 
+// GenUUID a function to return a new UUID
 type GenUUID func() uuid.UUID
 
 type uuidMatch struct {
@@ -20,11 +21,13 @@ func (u uuidMatch) variableName() string {
 	return u.match[1]
 }
 
+// UUID contains the regex to use to find UUID's a function to generate UUIDs
 type UUID struct {
 	re    *regexp.Regexp
 	genFn GenUUID
 }
 
+// Process applies the UUID substitutions
 func (u UUID) Process(b []byte) []byte {
 	matches := u.re.FindAllStringSubmatch(string(b), -1)
 
@@ -42,6 +45,7 @@ func (u UUID) Process(b []byte) []byte {
 	return b
 }
 
+// NewUUID creates a new UUID template processor
 func NewUUID(genFn GenUUID) UUID {
 	return UUID{
 		re:    regexp.MustCompile(`\$UUID\_(?P<variablename>\w+)`),

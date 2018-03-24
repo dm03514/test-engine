@@ -75,13 +75,14 @@ func (sv StringValue) String() string {
 	return sv.V
 }
 
-// Override contains result
+// Override using results
 type Override struct {
 	FromState     string `mapstructure:"from_state"`
 	UsingProperty string `mapstructure:"using_property"`
 	ToReplace     string `mapstructure:"to_replace"`
 }
 
+// Apply an override by fetching a result
 func (o Override) Apply(rs Results, src string) (string, error) {
 	replaceAll := -1
 	r, err := rs.Get(o.FromState)
@@ -103,10 +104,12 @@ func (o Override) Apply(rs Results, src string) (string, error) {
 	return replaced, nil
 }
 
+// Results collection of results
 type Results struct {
 	byStateName map[string]Result
 }
 
+// Add a result
 func (rs *Results) Add(r NamedResult) {
 	log.WithFields(log.Fields{
 		"component": "results",
@@ -116,6 +119,7 @@ func (rs *Results) Add(r NamedResult) {
 	rs.byStateName[r.Name] = r
 }
 
+// Get a result by name
 func (rs *Results) Get(k string) (Result, error) {
 	r, ok := rs.byStateName[k]
 	log.WithFields(log.Fields{
@@ -129,6 +133,7 @@ func (rs *Results) Get(k string) (Result, error) {
 	return r, nil
 }
 
+// New results collection
 func New(nrs ...NamedResult) *Results {
 	rs := &Results{
 		byStateName: make(map[string]Result),

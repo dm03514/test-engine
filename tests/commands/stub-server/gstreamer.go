@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// GStreamer contains metadata about streaming
 type GStreamer struct {
 	AccountID string
 
@@ -38,14 +39,13 @@ func (gs *GStreamer) analysisComplete(w http.ResponseWriter, r *http.Request) {
 		gs.currPollCreatedCount++
 		w.WriteHeader(http.StatusNoContent)
 		fmt.Fprintf(w, "{\"results\":[]}")
-		return
 	} else {
 		gs.currPollCreatedCount = 0
 		fmt.Fprintf(w, "{\"results\":[\"success\"]}")
-		return
 	}
 }
 
+// NewGstreamer creates initializes a new streamer test server
 func NewGstreamer(numPolledCreated int) *GStreamer {
 	gs := &GStreamer{
 		numPolledCreated: numPolledCreated,
