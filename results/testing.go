@@ -1,10 +1,10 @@
 package results
 
-type SingleStringResult struct {
+type singleStringResult struct {
 	V string
 }
 
-func (s SingleStringResult) Error() error { return nil }
-func (s SingleStringResult) ValueOfProperty(property string) (Value, error) {
+func (s singleStringResult) Error() error { return nil }
+func (s singleStringResult) ValueOfProperty(property string) (Value, error) {
 	return StringValue{V: s.V}, nil
 }
