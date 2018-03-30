@@ -41,4 +41,6 @@ defined as a list of state definitions.
 ## Additional Resources
 - [Test-Engine Introduction](https://medium.com/dm03514-tech-blog/introducing-test-engine-an-asynchronous-test-toolkit-5ca0883a0f4b)
 - [Creating and Executing Prometheus Reported Test](tutorials/PROMETHEUS_REPORTING_TEST_TUTORIAL.md)
-
+This tutorial covers everything involved with designing, developing, debugging and executing a non-trivial service test.
+- [Creating, Exposing, and Executing Test to Gather SLO Metrics](tutorials/SLO_TEST_EXPOSED_THROUGH_PROMETHEUS_HTTP.md)
+This tutorial covers registering a created test with the HTTP Executor, so that test execution is exposed over REST and reports execution metrics through prometheus.
