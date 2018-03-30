@@ -19,10 +19,12 @@ func errToResult(err error) string {
 	return fail
 }
 
+// HistogramVecStateDurationRecorder can record state durations
 type HistogramVecStateDurationRecorder struct {
 	*prometheus.HistogramVec
 }
 
+// Record a metric
 func (h *HistogramVecStateDurationRecorder) Record(sn string, tn string, d time.Duration, err error) {
 	log.Infof("prometheus.Record(%s, %+v, errToResult(%q), %q, %q, %+v",
 		d, err, errToResult(err), sn, tn, h.HistogramVec)
@@ -33,10 +35,12 @@ func (h *HistogramVecStateDurationRecorder) Record(sn string, tn string, d time.
 	}).Observe(d.Seconds())
 }
 
+// HistogramVecTestDurationRecorder can record test durations to prometheus!
 type HistogramVecTestDurationRecorder struct {
 	*prometheus.HistogramVec
 }
 
+// Record a histogram vector to prometheus
 func (h *HistogramVecTestDurationRecorder) Record(tn string, d time.Duration, err error) {
 	log.Infof("prometheus.Record(%s, %+v, errToResult(%q), %q, %+v",
 		d, err, errToResult(err), tn, h.HistogramVec)

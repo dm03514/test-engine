@@ -12,18 +12,21 @@ import (
 	"strings"
 )
 
-type HttpResult struct {
+// HTTPResult contains request result and metadata
+type HTTPResult struct {
 	*http.Response
 
 	err  error
 	body []byte
 }
 
-func (h HttpResult) Error() error {
+// Error gets the error associated with this result
+func (h HTTPResult) Error() error {
 	return h.err
 }
 
-func (h HttpResult) ValueOfProperty(property string) (results.Value, error) {
+// ValueOfProperty gets value associated with an identifier
+func (h HTTPResult) ValueOfProperty(property string) (results.Value, error) {
 	switch property {
 	case "status_code":
 		return results.IntValue{V: h.Response.StatusCode}, nil
@@ -34,8 +37,9 @@ func (h HttpResult) ValueOfProperty(property string) (results.Value, error) {
 	}
 }
 
-type Http struct {
-	Url       string
+// HTTP action has all data necessary to make a request
+type HTTP struct {
+	URL       string `mapstructure:"url"`
 	Method    string
 	Headers   map[string]string
 	Overrides []results.Override
@@ -43,8 +47,9 @@ type Http struct {
 	Type      string
 }
 
-func (h Http) Execute(ctx context.Context, rs results.Results) (results.Result, error) {
-	req, err := http.NewRequest(h.Method, h.Url, strings.NewReader(h.Body))
+// Execute makes the http request
+func (h HTTP) Execute(ctx context.Context, rs results.Results) (results.Result, error) {
+	req, err := http.NewRequest(h.Method, h.URL, strings.NewReader(h.Body))
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +69,7 @@ func (h Http) Execute(ctx context.Context, rs results.Results) (results.Result, 
 	log.WithFields(log.Fields{
 		"component":    h.Type,
 		"call":         "Execute()",
-		"url":          h.Url,
+		"url":          h.URL,
 		"method":       h.Method,
 		"status_code":  resp.StatusCode,
 		"execution_id": ctx.Value(ids.Execution("execution_id")),
@@ -75,14 +80,15 @@ func (h Http) Execute(ctx context.Context, rs results.Results) (results.Result, 
 		return nil, err
 	}
 
-	return HttpResult{
+	return HTTPResult{
 		Response: resp,
 		body:     b,
 	}, nil
 }
 
-func NewHttpFromMap(m map[string]interface{}) (Action, error) {
-	var h Http
+// NewHTTPFromMap initializes an http action based on generic map
+func NewHTTPFromMap(m map[string]interface{}) (Action, error) {
+	var h HTTP
 	err := mapstructure.Decode(m, &h)
 	return h, err
 }

@@ -17,7 +17,7 @@ func (u *uuidGen) gen() uuid.UUID {
 	uid, _ := uuid.FromString(u.stubIds[i])
 	return uid
 }
-func newUuidGen() *uuidGen {
+func newUUIDGen() *uuidGen {
 	return &uuidGen{
 		stubIds: []string{
 			"50e0ad50-7389-4e8e-9aa1-515a51ebf6d9",
@@ -55,7 +55,7 @@ func TestUUID_Process(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			u := NewUUID(newUuidGen().gen)
+			u := NewUUID(newUUIDGen().gen)
 			out := u.Process(tc.b)
 			if !reflect.DeepEqual(out, tc.expected) {
 				t.Errorf("Expected %q Received %q", tc.expected, out)

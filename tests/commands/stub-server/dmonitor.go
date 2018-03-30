@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// DmCreated contains information for stateful test stub server
 type DmCreated struct {
 	ID string
 
@@ -45,14 +46,13 @@ func (d *DmCreated) analysisComplete(w http.ResponseWriter, r *http.Request) {
 		d.currPollCreatedCount++
 		w.WriteHeader(http.StatusNoContent)
 		fmt.Fprintf(w, "{\"results\":[]}")
-		return
 	} else {
 		d.currPollCreatedCount = 0
 		fmt.Fprintf(w, "{\"results\":[\"success\"]}")
-		return
 	}
 }
 
+// NewDmcreated initializes and creates a Dmcreated
 func NewDmcreated(numPolledCreated int) *DmCreated {
 	dm := &DmCreated{
 		numPolledCreated: numPolledCreated,

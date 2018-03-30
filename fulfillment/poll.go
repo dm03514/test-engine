@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Poller contains actions and conditions, and polling configuration
 type Poller struct {
 	a  actions.Action
 	cs transcons.Conditions
@@ -22,18 +23,21 @@ type Poller struct {
 	Timeout  time.Duration
 }
 
+// Name identifies this poller
 func (p Poller) Name() string {
 	return p.name
 }
 
-// Naively has a timeout, needs context, interval can execute longer than timeout
+// Execute Naively has a timeout, needs context, interval can execute longer than timeout
 func (p Poller) Execute(ctx context.Context, rs results.Results) <-chan results.Result {
 	c := make(chan results.Result)
 
-	i := time.NewTicker(p.Interval)
 	t := time.After(p.Timeout)
 
 	go func() {
+		ticker := time.NewTicker(p.Interval)
+		defer ticker.Stop()
+
 		log.WithFields(log.Fields{
 			"component":    p.t,
 			"interval":     p.Interval.String(),
@@ -50,7 +54,7 @@ func (p Poller) Execute(ctx context.Context, rs results.Results) <-chan results.
 				}
 				break forloop
 
-			case <-i.C:
+			case <-ticker.C:
 				log.WithFields(log.Fields{
 					"component":    p.t,
 					"interval":     p.Interval.String(),
@@ -83,6 +87,7 @@ func (p Poller) Execute(ctx context.Context, rs results.Results) <-chan results.
 	return c
 }
 
+// NewPoller parses, initializes and returns a configured poller
 func NewPoller(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error) {
 	i, err := time.ParseDuration(f["interval"].(string))
 	if err != nil {

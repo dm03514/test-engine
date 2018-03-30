@@ -6,10 +6,12 @@ import (
 
 type loaderFn func(map[string]interface{}) (Action, error)
 
+// Registry maps action identifiers to parser functions
 type Registry struct {
 	m map[string]loaderFn
 }
 
+// Load an action from a generic map
 func (r Registry) Load(am map[string]interface{}) (Action, error) {
 	t := am["type"].(string)
 	loaderFn, ok := r.m[t]
@@ -19,11 +21,12 @@ func (r Registry) Load(am map[string]interface{}) (Action, error) {
 	return loaderFn(am)
 }
 
+// NewRegistry initializes loadable actions
 func NewRegistry() (Registry, error) {
 	return Registry{
 		m: map[string]loaderFn{
 			"shell.Subprocess": NewSubprocessFromMap,
-			"http.Http":        NewHttpFromMap,
+			"http.Http":        NewHTTPFromMap,
 		},
 	}, nil
 }

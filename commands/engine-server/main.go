@@ -12,14 +12,12 @@ import (
 	"os"
 )
 
-type HTTPExecutor interface {
+type httpExecutor interface {
 	ListenAndServe()
 	RegisterHandlers()
 }
 
-type NewServer func(loaders engine.Loaders, opts ...engine.HTTPOpt) (HTTPExecutor, error)
-
-func defaultServer(testsDir string) (HTTPExecutor, error) {
+func defaultServer(testsDir string) (httpExecutor, error) {
 	ar, err := actions.NewRegistry()
 	if err != nil {
 		return nil, err
@@ -42,7 +40,7 @@ func defaultServer(testsDir string) (HTTPExecutor, error) {
 	)
 }
 
-func prometheusServer(testsDir string) (HTTPExecutor, error) {
+func prometheusServer(testsDir string) (httpExecutor, error) {
 	stateDuration := ep.HistogramVecStateDurationRecorder{
 		HistogramVec: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
@@ -105,7 +103,7 @@ func main() {
 
 	log.Infof("testsDir: %q", *testsDir)
 	log.Infof("metrics: %q", *metrics)
-	var s HTTPExecutor
+	var s httpExecutor
 	var err error
 
 	switch *metrics {

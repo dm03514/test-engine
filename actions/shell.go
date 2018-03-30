@@ -11,16 +11,19 @@ import (
 	"os/exec"
 )
 
+// SubprocessResult from suprocess execution
 type SubprocessResult struct {
 	Output     []byte
 	Returncode int
 	err        error
 }
 
+// Error unpacks error from the result
 func (s SubprocessResult) Error() error {
 	return s.err
 }
 
+// ValueOfProperty retrieves a result value based on a property of the result
 func (s SubprocessResult) ValueOfProperty(property string) (results.Value, error) {
 	switch property {
 	case "returncode":
@@ -32,6 +35,7 @@ func (s SubprocessResult) ValueOfProperty(property string) (results.Value, error
 	}
 }
 
+// Subprocess can execute a shell command
 type Subprocess struct {
 	CommandName string `mapstructure:"command_name"`
 	Args        []string
@@ -62,6 +66,7 @@ func (s Subprocess) applyOverrides(rs results.Results) (string, []string, error)
 	return cn, s.Args, nil
 }
 
+// Execute s a shell command in a subprocess
 func (s Subprocess) Execute(ctx context.Context, rs results.Results) (results.Result, error) {
 	var stdout, stderr bytes.Buffer
 
@@ -121,6 +126,7 @@ func (s Subprocess) returnCode(err error) (int, error) {
 	return -1, err
 }
 
+// NewSubprocessFromMap parses generic map into subprocess action
 func NewSubprocessFromMap(m map[string]interface{}) (Action, error) {
 	var sp Subprocess
 	err := mapstructure.Decode(m, &sp)

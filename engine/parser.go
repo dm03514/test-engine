@@ -12,11 +12,11 @@ import (
 	"time"
 )
 
-type ActionRegistry interface {
+type actionRegistry interface {
 	Load(am map[string]interface{}) (actions.Action, error)
 }
 
-type TransConsRegistry interface {
+type transConsRegistry interface {
 	Load(tcm map[string]interface{}) (transcons.TransCon, error)
 }
 
@@ -27,7 +27,7 @@ type intermediaryState struct {
 	TransitionConditions []map[string]interface{} `yaml:"transition_conditions"`
 }
 
-func (is intermediaryState) ParsedTransCons(tcr TransConsRegistry) (transcons.Conditions, error) {
+func (is intermediaryState) ParsedTransCons(tcr transConsRegistry) (transcons.Conditions, error) {
 	var err error
 	var parsedCondition transcons.TransCon
 	conditions := make([]transcons.TransCon, len(is.TransitionConditions))
@@ -46,7 +46,7 @@ func (is intermediaryState) ParsedTransCons(tcr TransConsRegistry) (transcons.Co
 	}, nil
 }
 
-func (is intermediaryState) State(ar ActionRegistry, tcr TransConsRegistry) (State, error) {
+func (is intermediaryState) State(ar actionRegistry, tcr transConsRegistry) (State, error) {
 	action, err := ar.Load(is.Action)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,8 @@ func (it intermediaryTest) TimeoutDuration() time.Duration {
 	return time.Duration(time.Duration(to) * time.Second)
 }
 
-func NewFromYaml(b []byte, ar ActionRegistry, tcr TransConsRegistry, f Factory) (*Engine, error) {
+// NewFromYaml can parse a slice of bytes, as yaml, into a test!
+func NewFromYaml(b []byte, ar actionRegistry, tcr transConsRegistry, f Factory) (*Engine, error) {
 	it := intermediaryTest{}
 	ep := templateprocessors.NewEnv(os.LookupEnv)
 	uuidProcessor := templateprocessors.NewUUID(uuid.NewV4)
