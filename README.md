@@ -40,4 +40,5 @@ defined as a list of state definitions.
 
 ## Additional Resources
 - [Test-Engine Introduction](https://medium.com/dm03514-tech-blog/introducing-test-engine-an-asynchronous-test-toolkit-5ca0883a0f4b)
+- [Creating and Executing Prometheus Reported Test](./test-engine/tutorials/PROMETHEUS_REPORTING_TEST_TUTORIAL.md)
 
