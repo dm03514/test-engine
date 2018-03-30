@@ -1,4 +1,4 @@
-# Prometheus HTTP Server Executor
+# SLO Test Exposed Through Prometheus HTTP Server Executor
 
 
 This tutorial covers how to register, expose, and execute tests through an
