@@ -10,15 +10,18 @@ import (
 
 type loaderFn func(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error)
 
+// Fulfiller executes and return results
 type Fulfiller interface {
 	Execute(ctx context.Context, rs results.Results) <-chan results.Result
 	Name() string
 }
 
+// Registry contains fulfiller string identifiers mapped to loader functions
 type Registry struct {
 	m map[string]loaderFn
 }
 
+// Load parses a generic map into a fulfiller
 func (r Registry) Load(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error) {
 	t := f["type"].(string)
 	load, ok := r.m[t]
@@ -28,6 +31,7 @@ func (r Registry) Load(f map[string]interface{}, name string, a actions.Action, 
 	return load(f, name, a, cs)
 }
 
+// NewRegistry creates a usable registry
 func NewRegistry() (Registry, error) {
 	return Registry{
 		m: map[string]loaderFn{

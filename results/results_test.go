@@ -6,7 +6,7 @@ func TestOverride_Apply(t *testing.T) {
 	rs := New(
 		NamedResult{
 			Name:   "test",
-			Result: SingleStringResult{V: "!!!"},
+			Result: singleStringResult{V: "!!!"},
 		},
 	)
 

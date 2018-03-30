@@ -91,7 +91,7 @@ func prometheusServer(testsDir string) (HTTPExecutor, error) {
 		return nil, err
 	}
 
-	return ep.NewPrometheusHTTPExecutor(
+	return ep.NewHTTPExecutor(
 		engine.NewLoaders(
 			loader,
 		),
@@ -116,7 +116,6 @@ func main() {
 	default:
 		panic(fmt.Errorf("%q metric not supported", *metrics))
 	}
-	fmt.Print(s)
 
 	if err != nil {
 		log.Panic(err)

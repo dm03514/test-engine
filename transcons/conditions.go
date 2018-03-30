@@ -7,10 +7,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Conditions is a collection of state transition conditions
 type Conditions struct {
 	Tcs []TransCon
 }
 
+// Evaluate 's a results against ALL conditions.  Returns after the first failure
 func (c Conditions) Evaluate(ctx context.Context, result results.Result) results.Result {
 	log.WithFields(log.Fields{
 		"component":    "conditions",

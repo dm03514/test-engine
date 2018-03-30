@@ -6,25 +6,28 @@ import (
 	"net/http"
 )
 
-type PrometheusHTTPExecutor struct {
+// HTTPExecutor wraps the vanilla HTTP executor
+type HTTPExecutor struct {
 	engine.HttpExecutor
 }
 
-func (p PrometheusHTTPExecutor) RegisterHandlers() {
+// RegisterHandlers adds prometheus metrics endpoint
+func (p HTTPExecutor) RegisterHandlers() {
 	http.Handle("/metrics", promhttp.Handler())
 
 	p.HttpExecutor.RegisterHandlers()
 }
 
-func NewPrometheusHTTPExecutor(loaders engine.Loaders, opts ...engine.HTTPOpt) (PrometheusHTTPExecutor, error) {
+// NewHTTPExecutor initializes prometheus HTTP executor with options
+func NewHTTPExecutor(loaders engine.Loaders, opts ...engine.HTTPOpt) (HTTPExecutor, error) {
 	e, err := engine.NewHTTPExecutor(
 		loaders,
 		opts...,
 	)
 	if err != nil {
-		return PrometheusHTTPExecutor{}, nil
+		return HTTPExecutor{}, nil
 	}
-	return PrometheusHTTPExecutor{
+	return HTTPExecutor{
 		HttpExecutor: e,
 	}, nil
 }
