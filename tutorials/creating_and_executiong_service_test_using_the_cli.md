@@ -1,4 +1,4 @@
-# Creating and Executing Prometheus Reported Test
+# Creating and Executing Service Test Using CLI
 
 This tutorial will simulate developing a complex test, executing it, and getting
 prometheus metrics from it, for this we will assume there is an API to develop against.
