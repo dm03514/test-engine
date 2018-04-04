@@ -1,4 +1,4 @@
-# Creating and Executing Service Test Using CLI
+# Creating and Developing a Service Test Using CLI
 
 This tutorial will simulate developing a complex test, executing it, and getting
 prometheus metrics from it, for this we will assume there is an API to develop against.
@@ -10,8 +10,6 @@ This tutorial will cover:
     - test http/subprocess
     - state variable overrides/substitutions
     - test CLI execution
-    - Prometheus HTTP Test server configuration
-    - Prometheus HTTP Test server execution
     
 For this tutorial let's pretend we have 3 separate microservice systems and we'd like
 to test a complete workflow through them.  The systems are:
@@ -437,7 +435,7 @@ our test.
           "to_equal": 200,
           "using_property": "status_code"
         }
-       
-- YAY! WOOT we now have a declaritive language agnostic test!!!!!!!!!!!! WHat do we do 
-now with it?? [Check out how to expose the test through an HTTP server, which
+        
+- YAY! WOOT we now have a declaritive language agnostic test!!!!!!!!!!!!  
+[Check out how to expose the test through an HTTP server, which
 allows for metric reporting on your test.](PROMETHEUS_HTTP.md)

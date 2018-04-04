@@ -1,0 +1,16 @@
+language: go
+
+go:
+  - "1.10.x"
+
+services:
+  - docker
+
+install:
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+
+script:
+  - make lint
+  - make test-unit
+  - make build
+  - make test-functional
