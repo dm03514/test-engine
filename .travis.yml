@@ -7,7 +7,7 @@ services:
   - docker
 
 install:
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+  - make build-tools
 
 script:
   - make lint

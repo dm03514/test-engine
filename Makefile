@@ -2,6 +2,10 @@ PKGS = $(shell go list ./... | grep -v /vendor/)
 EXECUTOR_BIN = "test-executor"
 ENGINE_SERVER_BIN = "engine-server"
 
+
+build-tools:
+	go get -u golang.org/x/lint/golint
+
 test-unit:
 	go test $(PKGS) -v
 
@@ -27,4 +31,4 @@ fmt:
 lint:
 	golint $(PKGS)
 
-.PHONY: test-unit test-functional fmt lint start-prometheus-server test-prometheus-server
+.PHONY: test-unit test-functional fmt lint start-prometheus-server test-prometheus-server build-tools
