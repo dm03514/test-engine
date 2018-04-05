@@ -5,9 +5,10 @@ ENGINE_SERVER_BIN = "engine-server"
 
 build-tools:
 	go get -u golang.org/x/lint/golint
+	go get github.com/mattn/goveralls
 
 test-unit:
-	go test $(PKGS) -v
+	go test $(PKGS) -v -coverprofile=coverage.out -covermode=count
 
 build:
 	go build -o $(EXECUTOR_BIN) ./commands/test-executor
