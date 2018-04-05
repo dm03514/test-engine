@@ -4,6 +4,7 @@ An asynchronous test toolkit powering end to end and integration level tests.
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/dm03514/test-engine)](https://goreportcard.com/report/github.com/dm03514/test-engine)
 [![Build Status](https://travis-ci.org/dm03514/test-engine.svg?branch=master)](https://travis-ci.org/dm03514/test-engine)
+[![Coverage Status](https://coveralls.io/repos/github/dm03514/test-engine/badge.svg)](https://coveralls.io/github/dm03514/test-engine)
 
 Test-Engine provides:
 - Centralized framework 
