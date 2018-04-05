@@ -2,8 +2,13 @@ PKGS = $(shell go list ./... | grep -v /vendor/)
 EXECUTOR_BIN = "test-executor"
 ENGINE_SERVER_BIN = "engine-server"
 
+
+build-tools:
+	go get -u golang.org/x/lint/golint
+	go get github.com/mattn/goveralls
+
 test-unit:
-	go test $(PKGS) -v
+	go test $(PKGS) -v -coverprofile=coverage.out -covermode=count
 
 build:
 	go build -o $(EXECUTOR_BIN) ./commands/test-executor
@@ -27,4 +32,4 @@ fmt:
 lint:
 	golint $(PKGS)
 
-.PHONY: test-unit test-functional fmt lint start-prometheus-server test-prometheus-server
+.PHONY: test-unit test-functional fmt lint start-prometheus-server test-prometheus-server build-tools

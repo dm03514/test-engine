@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - "1.10.x"
+
+services:
+  - docker
+
+install:
+  - make build-tools
+
+script:
+  - make lint
+  - make test-unit
+  - $GOPATH/bin/goveralls -service=travis-ci
+  - make build
+  - make test-functional
