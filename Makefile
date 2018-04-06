@@ -15,10 +15,13 @@ build:
 	go build -o $(ENGINE_SERVER_BIN) ./commands/engine-server
 
 test-functional:
-	./$(EXECUTOR_BIN) -test $(shell pwd)/tests/subprocess_exit_code.yml
-	./$(EXECUTOR_BIN) -test $(shell pwd)/tests/subprocess_multiple_conditions.yml
-	./$(EXECUTOR_BIN) -test $(shell pwd)/tests/multiple_states.yml
-	./$(EXECUTOR_BIN) -test $(shell pwd)/tests/previous_state_overrides.yml
+	go test -tags=functional ./commands/test-executor/ -v \
+		-root-test-dir=$(shell pwd)/tests/ \
+		-coverprofile=coverage.functional.out -covermode=count
+	# ./$(EXECUTOR_BIN) -test $(shell pwd)/tests/subprocess_exit_code.yml
+	# ./$(EXECUTOR_BIN) -test $(shell pwd)/tests/subprocess_multiple_conditions.yml
+	# ./$(EXECUTOR_BIN) -test $(shell pwd)/tests/multiple_states.yml
+	#./$(EXECUTOR_BIN) -test $(shell pwd)/tests/previous_state_overrides.yml
 
 start-prometheus-server:
 	./$(ENGINE_SERVER_BIN) -testDir=$(shell pwd)/tests -metrics=prometheus 2>&1 | jq .
