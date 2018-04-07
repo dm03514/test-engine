@@ -6,9 +6,12 @@ import (
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/results"
 	"github.com/dm03514/test-engine/transcons"
+	log "github.com/sirupsen/logrus"
 )
 
 type loaderFn func(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error)
+
+const defaultType = "noop.Noop"
 
 // Fulfiller executes and return results
 type Fulfiller interface {
@@ -23,10 +26,16 @@ type Registry struct {
 
 // Load parses a generic map into a fulfiller
 func (r Registry) Load(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error) {
-	t := f["type"].(string)
-	load, ok := r.m[t]
+	t, ok := f["type"]
+
 	if !ok {
-		return nil, fmt.Errorf("Unable to parse fulfillment type %s", t)
+		log.Warnf("Fulfillment type %q not found, falling back to default: %q", t, defaultType)
+		t = defaultType
+	}
+
+	load, ok := r.m[t.(string)]
+	if !ok {
+		return nil, fmt.Errorf("Unable to find loader for fulfillment type %q", t)
 	}
 	return load(f, name, a, cs)
 }

@@ -10,10 +10,7 @@ import (
 	"path/filepath"
 )
 
-func main() {
-	var fp = flag.String("test", "", "test to execute")
-	flag.Parse()
-
+func executeTest(fp string) error {
 	ar, err := actions.NewRegistry()
 	if err != nil {
 		log.Panic(err)
@@ -24,7 +21,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	dir, file := filepath.Split(*fp)
+	dir, file := filepath.Split(fp)
 
 	fl, err := engine.NewFileLoader(dir, ar, tcr, engine.NewDefaultFactory())
 	if err != nil {
@@ -38,6 +35,15 @@ func main() {
 	}
 
 	err = engine.Run(context.Background())
+	return err
+}
+
+func main() {
+	var fp = flag.String("test", "", "test to execute")
+	flag.Parse()
+
+	err := executeTest(*fp)
+
 	if err != nil {
 		log.Panic(err)
 	}

@@ -16,8 +16,6 @@ states:
         to_equal: 200
 
   - name: echo_success
-    fulfillment:
-      type: noop.Noop
     action:
       type: shell.Subprocess
       command_name: echo
@@ -29,8 +27,6 @@ states:
         to_equal: 0
 
   - name: echo_success_2
-    fulfillment:
-      type: noop.Noop
     action:
       type: shell.Subprocess
       command_name: echo
