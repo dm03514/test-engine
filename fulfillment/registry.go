@@ -2,6 +2,7 @@ package fulfillment
 
 import (
 	"context"
+	"fmt"
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/results"
 	"github.com/dm03514/test-engine/transcons"
@@ -25,11 +26,16 @@ type Registry struct {
 
 // Load parses a generic map into a fulfiller
 func (r Registry) Load(f map[string]interface{}, name string, a actions.Action, cs transcons.Conditions) (Fulfiller, error) {
-	t := f["type"].(string)
-	load, ok := r.m[t]
+	t, ok := f["type"]
+
 	if !ok {
 		log.Warnf("Fulfillment type %q not found, falling back to default: %q", t, defaultType)
-		load, ok = r.m[defaultType]
+		t = defaultType
+	}
+
+	load, ok := r.m[t.(string)]
+	if !ok {
+		return nil, fmt.Errorf("Unable to find loader for fulfillment type %q", t)
 	}
 	return load(f, name, a, cs)
 }

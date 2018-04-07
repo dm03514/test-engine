@@ -25,6 +25,13 @@ start-prometheus-server:
 test-prometheus-server:
 	curl -X POST localhost:8080/execute?test=multiple_states.yml
 
+start-test-stub-server:
+	go run tests/commands/stub-server/*.go
+
+# test-stub-server:
+# $(EXECUTOR_BIN) -test $(shell pwd)/tests/gstreamer.yml
+# $(EXECUTOR_BIN) -test $(shell pwd)/tests/dmonitor.yml
+
 fmt:
 	go fmt ./...
 

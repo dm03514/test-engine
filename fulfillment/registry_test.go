@@ -15,7 +15,6 @@ func TestRegistry_Load_Default_Noop(t *testing.T) {
 		t.FailNow()
 	}
 	m := make(map[string]interface{})
-	m["type"] = "no registered type"
 	name := "test"
 	f, err := r.Load(
 		m,
