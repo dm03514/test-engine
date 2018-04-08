@@ -1,9 +1,9 @@
 package actions
 
 import (
-	"testing"
 	"context"
 	"github.com/dm03514/test-engine/results"
+	"testing"
 )
 
 func TestSubprocess_applyOverrides_(t *testing.T) {
@@ -14,11 +14,10 @@ func TestSubprocessResult_ValueOfProperty(t *testing.T) {
 	t.Skip()
 }
 
-
 func TestSubprocess_Execute(t *testing.T) {
 	s := Subprocess{
 		CommandName: "printf",
-		Args: []string{"hello"},
+		Args:        []string{"hello"},
 	}
 
 	r, err := s.Execute(context.Background(), results.Results{})
