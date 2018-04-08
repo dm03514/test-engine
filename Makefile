@@ -8,7 +8,7 @@ build-tools:
 	go get github.com/mattn/goveralls
 
 test-unit:
-	go test $(PKGS) -v -coverprofile=coverage.out -covermode=count
+	go test $(PKGS) -v -coverprofile=coverage.out -covermode=count -tags=integration
 
 build:
 	go build -o $(EXECUTOR_BIN) ./commands/test-executor
