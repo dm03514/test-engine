@@ -14,5 +14,4 @@ script:
   - make test-unit
   - make build
   - make test-functional
-  - $GOPATH/bin/goveralls -service=travis-ci \
-    -coverprofile=coverage.out,coverage.functional.out
+  - $GOPATH/bin/goveralls -service=travis-ci -coverprofile=coverage.out,coverage.functional.out
