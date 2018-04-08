@@ -14,6 +14,6 @@ func TestNoopFulfillment_Execute(t *testing.T) {
 	outChan := f.Execute(context.Background(), results.Results{})
 	r := <-outChan
 	if r != nil {
-		t.Errorf("Expected nil return received %+v", r)
+		t.Errorf("Expected nil returned, received %+v", r)
 	}
 }
