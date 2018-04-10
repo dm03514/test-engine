@@ -6,16 +6,17 @@ ENGINE_SERVER_BIN = "engine-server"
 build-tools:
 	go get -u golang.org/x/lint/golint
 	go get github.com/mattn/goveralls
+	go get github.com/wadey/gocovmerge
 
 test-unit:
-	go test $(PKGS) -v -coverprofile=coverage.out -covermode=count -tags=integration
+	go test $(PKGS) -v -coverprofile=coverage.out -covermode=count -tags=unit integration
 
 build:
 	go build -o $(EXECUTOR_BIN) ./commands/test-executor
 	go build -o $(ENGINE_SERVER_BIN) ./commands/engine-server
 
 test-functional:
-	go test -tags=functional ./commands/test-executor/ -v \
+	go test -tags=functional ./commands/test-executor/ $(PKGS) -v \
 		-root-test-dir=$(shell pwd)/tests/ \
 		-coverprofile=coverage.functional.out -covermode=count
 
