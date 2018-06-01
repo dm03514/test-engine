@@ -16,11 +16,20 @@ type State interface {
 	Name() string
 }
 
+// ObservableEvent is emitted by observables
+type ObservableEvent interface{}
+
+// Observable can be watched for events by the engine
+type Observable interface {
+	RunUntilContextDone(context.Context) <-chan ObservableEvent
+}
+
 // Test contains all states and global config and metadata
 type Test struct {
-	Name    string
-	States  []State
-	Timeout time.Duration
+	Name      string
+	States    []State
+	Timeout   time.Duration
+	Observers map[string]Observable
 }
 
 // Engine decorates a test and contains execution metadata

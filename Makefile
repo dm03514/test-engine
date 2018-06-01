@@ -1,6 +1,6 @@
 PKGS = $(shell go list ./... | grep -v /vendor/)
-EXECUTOR_BIN = "test-executor"
-ENGINE_SERVER_BIN = "engine-server"
+EXECUTOR_BIN="test-executor"
+ENGINE_SERVER_BIN="engine-server"
 
 
 build-tools:
@@ -20,7 +20,7 @@ test-functional:
 		-coverprofile=coverage.functional.out -covermode=count
 
 start-prometheus-server:
-	./$(ENGINE_SERVER_BIN) -testDir=$(shell pwd)/tests -metrics=prometheus 2>&1 | jq .
+	$(ENGINE_SERVER_BIN) -testDir=$(shell pwd)/tests -metrics=prometheus 2>&1 | jq .
 
 test-prometheus-server:
 	curl -X POST localhost:8080/execute?test=multiple_states.yml

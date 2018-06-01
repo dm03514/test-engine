@@ -20,6 +20,10 @@ type transConsRegistry interface {
 	Load(tcm map[string]interface{}) (transcons.TransCon, error)
 }
 
+type observablesRegistry interface {
+	Load(obm map[string]interface{}) (Observable, error)
+}
+
 type intermediaryState struct {
 	Name                 string
 	Fulfillment          map[string]interface{}
@@ -64,9 +68,10 @@ func (is intermediaryState) State(ar actionRegistry, tcr transConsRegistry) (Sta
 }
 
 type intermediaryTest struct {
-	Name    string
-	Timeout int
-	States  []intermediaryState
+	Name        string
+	Timeout     int
+	States      []intermediaryState
+	Observables map[string]Observable
 }
 
 func (it intermediaryTest) TimeoutDuration() time.Duration {
@@ -75,6 +80,25 @@ func (it intermediaryTest) TimeoutDuration() time.Duration {
 		to = it.Timeout
 	}
 	return time.Duration(time.Duration(to) * time.Second)
+}
+
+func (it intermediaryTest) BuildStates(ar actionRegistry, tcr transConsRegistry) ([]State, error) {
+	states := []State{}
+	for _, ps := range it.States {
+
+		log.WithFields(log.Fields{
+			"component": "NewFromYaml()",
+			"raw_state": ps.Name,
+		}).Debug("parsing_tate")
+
+		s, err := ps.State(ar, tcr)
+		if err != nil {
+			return nil, err
+		}
+		states = append(states, s)
+	}
+
+	return states, nil
 }
 
 // NewFromYaml can parse a slice of bytes, as yaml, into a test!
@@ -99,19 +123,9 @@ func NewFromYaml(b []byte, ar actionRegistry, tcr transConsRegistry, f Factory) 
 		"test_name": it.Name,
 	}).Debug("parsing_test")
 
-	states := []State{}
-	for _, ps := range it.States {
-
-		log.WithFields(log.Fields{
-			"component": "NewFromYaml()",
-			"raw_state": ps.Name,
-		}).Debug("parsing_tate")
-
-		s, err := ps.State(ar, tcr)
-		if err != nil {
-			return nil, err
-		}
-		states = append(states, s)
+	states, err := it.BuildStates(ar, tcr)
+	if err != nil {
+		return nil, err
 	}
 
 	return f.New(
