@@ -2,7 +2,10 @@ package actions
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 )
+
+const defaultType = "noop.Noop"
 
 type loaderFn func(map[string]interface{}) (Action, error)
 
@@ -13,8 +16,14 @@ type Registry struct {
 
 // Load an action from a generic map
 func (r Registry) Load(am map[string]interface{}) (Action, error) {
-	t := am["type"].(string)
-	loaderFn, ok := r.m[t]
+	t, ok := am["type"]
+
+	if !ok {
+		log.Warnf("Action type %q not found, falling back to default: %q", t, defaultType)
+		t = defaultType
+	}
+
+	loaderFn, ok := r.m[t.(string)]
 	if !ok {
 		return nil, fmt.Errorf("Unable to parse action type %s", t)
 	}
@@ -27,6 +36,7 @@ func NewRegistry() (Registry, error) {
 		m: map[string]loaderFn{
 			"shell.Subprocess": NewSubprocessFromMap,
 			"http.Http":        NewHTTPFromMap,
+			"noop.Noop":        NewNoopFromMap,
 		},
 	}, nil
 }

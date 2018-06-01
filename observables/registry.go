@@ -23,7 +23,7 @@ func (r Registry) Load(am map[string]interface{}) (Observable, error) {
 func NewRegistry() (Registry, error) {
 	return Registry{
 		m: map[string]loaderFn{
-			"observable.HTTP": NewHTTPObservableFromMap,
+			"observables.HTTP": NewHTTPObservableFromMap,
 		},
 	}, nil
 }

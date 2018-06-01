@@ -71,7 +71,7 @@ type intermediaryTest struct {
 	Name        string
 	Timeout     int
 	States      []intermediaryState
-	Observables map[string]Observable
+	Observables []map[string]interface{}
 }
 
 func (it intermediaryTest) TimeoutDuration() time.Duration {
@@ -89,7 +89,7 @@ func (it intermediaryTest) BuildStates(ar actionRegistry, tcr transConsRegistry)
 		log.WithFields(log.Fields{
 			"component": "NewFromYaml()",
 			"raw_state": ps.Name,
-		}).Debug("parsing_tate")
+		}).Debug("parsing_state")
 
 		s, err := ps.State(ar, tcr)
 		if err != nil {
