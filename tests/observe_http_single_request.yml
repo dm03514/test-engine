@@ -1,0 +1,28 @@
+---
+name: observe_http_single_request
+
+observables:
+  - name: http_listener
+    type: observables.HTTP
+    addr: localhost:9999
+
+states:
+  - name: send_request
+    action:
+      type: http.Http
+      url: http://localhost:9999/hello
+      method: POST
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: status_code
+        to_equal: 201
+
+  - name: single_message_received
+    fulfillment:
+      type: observers.EventsObserver
+      observes: http_listener
+      timeout: 10s
+    transition_conditions:
+      - type: assertions.IntEqual
+        using_property: num_events_seen
+        to_equal: 1

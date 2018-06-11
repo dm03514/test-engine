@@ -4,6 +4,7 @@ import (
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/engine/templateprocessors"
 	"github.com/dm03514/test-engine/fulfillment"
+	"github.com/dm03514/test-engine/observables"
 	"github.com/dm03514/test-engine/transcons"
 	"github.com/go-yaml/yaml"
 	"github.com/satori/go.uuid"
@@ -18,6 +19,10 @@ type actionRegistry interface {
 
 type transConsRegistry interface {
 	Load(tcm map[string]interface{}) (transcons.TransCon, error)
+}
+
+type observablesRegistry interface {
+	Load(obm map[string]interface{}) (observables.Observable, error)
 }
 
 type intermediaryState struct {
@@ -64,9 +69,10 @@ func (is intermediaryState) State(ar actionRegistry, tcr transConsRegistry) (Sta
 }
 
 type intermediaryTest struct {
-	Name    string
-	Timeout int
-	States  []intermediaryState
+	Name        string
+	Timeout     int
+	States      []intermediaryState
+	Observables []map[string]interface{}
 }
 
 func (it intermediaryTest) TimeoutDuration() time.Duration {
@@ -77,8 +83,46 @@ func (it intermediaryTest) TimeoutDuration() time.Duration {
 	return time.Duration(time.Duration(to) * time.Second)
 }
 
+func (it intermediaryTest) BuildStates(ar actionRegistry, tcr transConsRegistry) ([]State, error) {
+	states := []State{}
+	for _, ps := range it.States {
+
+		log.WithFields(log.Fields{
+			"component": "NewFromYaml()",
+			"raw_state": ps.Name,
+		}).Debug("parsing_state")
+
+		s, err := ps.State(ar, tcr)
+		if err != nil {
+			return nil, err
+		}
+		states = append(states, s)
+	}
+
+	return states, nil
+}
+
+func (it intermediaryTest) BuildObservables(observableReg observablesRegistry) (map[string]observables.Observable, error) {
+	obs := make(map[string]observables.Observable)
+
+	for _, o := range it.Observables {
+		log.WithFields(log.Fields{
+			"component":       "NewFromYaml()",
+			"raw_observeable": o,
+		}).Debug("parsing_observeable")
+
+		parsed, err := observableReg.Load(o)
+		if err != nil {
+			return nil, err
+		}
+
+		obs[parsed.Name()] = parsed
+	}
+	return obs, nil
+}
+
 // NewFromYaml can parse a slice of bytes, as yaml, into a test!
-func NewFromYaml(b []byte, ar actionRegistry, tcr transConsRegistry, f Factory) (*Engine, error) {
+func NewFromYaml(b []byte, ar actionRegistry, tcr transConsRegistry, observablesReg observablesRegistry, f Factory) (*Engine, error) {
 	it := intermediaryTest{}
 	ep := templateprocessors.NewEnv(os.LookupEnv)
 	uuidProcessor := templateprocessors.NewUUID(uuid.NewV4)
@@ -99,26 +143,19 @@ func NewFromYaml(b []byte, ar actionRegistry, tcr transConsRegistry, f Factory) 
 		"test_name": it.Name,
 	}).Debug("parsing_test")
 
-	states := []State{}
-	for _, ps := range it.States {
-
-		log.WithFields(log.Fields{
-			"component": "NewFromYaml()",
-			"raw_state": ps.Name,
-		}).Debug("parsing_tate")
-
-		s, err := ps.State(ar, tcr)
-		if err != nil {
-			return nil, err
-		}
-		states = append(states, s)
+	states, err := it.BuildStates(ar, tcr)
+	if err != nil {
+		return nil, err
 	}
+
+	obsvables, err := it.BuildObservables(observablesReg)
 
 	return f.New(
 		Test{
-			Name:    it.Name,
-			Timeout: it.TimeoutDuration(),
-			States:  states,
+			Name:         it.Name,
+			Timeout:      it.TimeoutDuration(),
+			States:       states,
+			Observeables: obsvables,
 		},
 	)
 }

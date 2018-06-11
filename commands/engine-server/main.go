@@ -6,6 +6,7 @@ import (
 	"github.com/dm03514/test-engine/actions"
 	"github.com/dm03514/test-engine/engine"
 	ep "github.com/dm03514/test-engine/engine/prometheus"
+	"github.com/dm03514/test-engine/observables"
 	"github.com/dm03514/test-engine/transcons"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
@@ -18,6 +19,11 @@ type httpExecutor interface {
 }
 
 func defaultServer(testsDir string) (httpExecutor, error) {
+	observablesRegistry, err := observables.NewRegistry()
+	if err != nil {
+		log.Panic(err)
+	}
+
 	ar, err := actions.NewRegistry()
 	if err != nil {
 		return nil, err
@@ -28,7 +34,7 @@ func defaultServer(testsDir string) (httpExecutor, error) {
 		return nil, err
 	}
 
-	loader, err := engine.NewFileLoader(testsDir, ar, tcr, engine.NewDefaultFactory())
+	loader, err := engine.NewFileLoader(testsDir, ar, tcr, observablesRegistry, engine.NewDefaultFactory())
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +82,16 @@ func prometheusServer(testsDir string) (httpExecutor, error) {
 		return nil, err
 	}
 
+	observablesRegistry, err := observables.NewRegistry()
+	if err != nil {
+		log.Panic(err)
+	}
+
 	loader, err := engine.NewFileLoader(
 		testsDir,
 		ar,
 		tcr,
+		observablesRegistry,
 		engine.NewDefaultFactory(
 			engine.OptionRecordStateDuration(stateDuration.Record),
 			engine.OptionRecordTestDuration(testDuration.Record),
