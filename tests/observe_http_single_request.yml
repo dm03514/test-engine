@@ -4,8 +4,7 @@ name: observe_http_single_request
 observables:
   - name: http_listener
     type: observables.HTTP
-    config:
-      addr: localhost:9999
+    addr: localhost:9999
 
 states:
   - name: send_request

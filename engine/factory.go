@@ -1,5 +1,7 @@
 package engine
 
+import "github.com/dm03514/test-engine/observables"
+
 // Factory creates new engines!
 type Factory interface {
 	New(t Test, opts ...Option) (*Engine, error)
@@ -15,6 +17,7 @@ type DefaultFactory struct {
 func (d DefaultFactory) New(t Test, opts ...Option) (*Engine, error) {
 	e := &Engine{
 		Test:                t,
+		eventChans:          make(map[string]<-chan observables.ObservableEvent),
 		recordStateDuration: NoopStateDurationRecorder,
 		recordTestDuration:  NoopTestDurationRecorder,
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dm03514/test-engine/ids"
+	"github.com/dm03514/test-engine/observables"
 	"github.com/dm03514/test-engine/results"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
@@ -16,20 +17,12 @@ type State interface {
 	Name() string
 }
 
-// ObservableEvent is emitted by observables
-type ObservableEvent interface{}
-
-// Observable can be watched for events by the engine
-type Observable interface {
-	RunUntilContextDone(context.Context) <-chan ObservableEvent
-}
-
 // Test contains all states and global config and metadata
 type Test struct {
-	Name      string
-	States    []State
-	Timeout   time.Duration
-	Observers map[string]Observable
+	Name         string
+	States       []State
+	Timeout      time.Duration
+	Observeables map[string]observables.Observable
 }
 
 // Engine decorates a test and contains execution metadata
@@ -37,6 +30,7 @@ type Engine struct {
 	Test
 
 	currentState int
+	eventChans   map[string]<-chan observables.ObservableEvent
 	rs           *results.Results
 
 	recordStateDuration StateDurationRecorder
@@ -77,6 +71,11 @@ func (e Engine) Run(ctx context.Context) error {
 	defer cancel()
 
 	ctx = context.WithValue(ctx, ids.Execution("execution_id"), testID)
+
+	// start all observeables
+	for name, obs := range e.Observeables {
+		e.eventChans[name] = obs.RunUntilContextDone(ctx)
+	}
 
 engineloop:
 	for {

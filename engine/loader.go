@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"github.com/dm03514/test-engine/actions"
+	"github.com/dm03514/test-engine/observables"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"path/filepath"
@@ -39,10 +40,11 @@ type loader interface {
 
 // FileLoader contains information on how /where to load files from
 type FileLoader struct {
-	Dir               string
-	actionRegistry    actions.Registry
-	transConsRegistry transConsRegistry
-	engineFactory     Factory
+	Dir                 string
+	actionRegistry      actions.Registry
+	transConsRegistry   transConsRegistry
+	observablesRegistry observables.Registry
+	engineFactory       Factory
 }
 
 // Load the test from the Dir matching the name
@@ -63,18 +65,20 @@ func (fl FileLoader) Load(name string) (*Engine, error) {
 		content,
 		fl.actionRegistry,
 		fl.transConsRegistry,
+		fl.observablesRegistry,
 		fl.engineFactory,
 	)
 	return engine, err
 }
 
 // NewFileLoader creates a file loader
-func NewFileLoader(dir string, ar actions.Registry, tcr transConsRegistry, ef Factory) (FileLoader, error) {
+func NewFileLoader(dir string, ar actions.Registry, tcr transConsRegistry, observablesReg observables.Registry, ef Factory) (FileLoader, error) {
 	return FileLoader{
-		Dir:               dir,
-		actionRegistry:    ar,
-		transConsRegistry: tcr,
-		engineFactory:     ef,
+		Dir:                 dir,
+		actionRegistry:      ar,
+		transConsRegistry:   tcr,
+		engineFactory:       ef,
+		observablesRegistry: observablesReg,
 	}, nil
 }
 

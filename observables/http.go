@@ -4,6 +4,9 @@ import (
 	"context"
 	"github.com/mitchellh/mapstructure"
 	"net/http"
+	"github.com/dm03514/test-engine/ids"
+	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 // configure to listen on a port
@@ -18,20 +21,31 @@ type HTTPRequestEvent struct {
 // HTTP Listens and emits all HTTP Requests on a specific Addr
 type HTTP struct {
 	Addr string
+
+	name string
+	ComponentType string `mapstructure:"type"`
+}
+
+func (h HTTP) Name() string {
+	return h.name
 }
 
 // RunUntilContextDone listens for HTTP traffic and emits all requests,
 // until the context is Done
 func (h HTTP) RunUntilContextDone(ctx context.Context) <-chan ObservableEvent {
 	reqs := make(<-chan ObservableEvent, 1000)
-	/*
-		s := &http.Server{
-			Addr:         h.Addr,
-			ReadTimeout:  5 * time.Second,
-			WriteTimeout: 10 * time.Second,
-			IdleTimeout:  15 * time.Second,
-		}
-	*/
+
+	log.WithFields(log.Fields{
+		"component":    h.ComponentType,
+		"execution_id": ctx.Value(ids.Execution("execution_id")),
+	}).Info("starting_http_server")
+
+	s := &http.Server{
+		Addr:         h.Addr,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  15 * time.Second,
+	}
 
 	go func() {
 
